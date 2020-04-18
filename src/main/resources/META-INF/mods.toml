@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[31,)"
+
+[[mods]]
+    modId="labrynthmc"
+    version="0.1.0"
+    displayName="LabrynthMC"
+    #updateJSONURL=
+    displayURL="https://github.com/MortiBoi/LabrynthMC"
+    #issueTrackerURL="https://github.com/MortiBoi/LabrynthMC/issues"
+    #logoFile=
+    # credits=
+    authors="Brandon Henke, Evan Severson"
+    description='''
+    Solve the maze!
+    '''
+
+[[dependencies.labrynthmc]]
+    modId="forge"
+    mandatory=true
+    versionRange="[31,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.labrynthmc]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.15.2]"
+    ordering="NONE"
+    side="BOTH"
