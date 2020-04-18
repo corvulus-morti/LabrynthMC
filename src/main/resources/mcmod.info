@@ -1,0 +1,10 @@
+[{
+  "modid": "labrynthmc",
+  "name": "Labrynth",
+  "description": "This mod adds a randomly generated labyrinth to the bottom of the Nether. Find it, and get to the center of the Labrynth.",
+  "version": "0.0.0.1",
+  "mcversion": "1.15.2",
+  "logoFile": "assets/labrynthmc/textures/logo.png",
+  "url": "https://github.com/MortiBoi/LabrynthMC",
+  "authorList": ["Brandon Henke, Evan Severson"]
+}]
