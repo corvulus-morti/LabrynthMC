@@ -55,8 +55,7 @@ public class Grid
 
 		public Coords add(Coords a)
 		{
-			Coords ret = new Coords(a.getX()+x,a.getY()+y);
-			return ret;
+			return new Coords(a.getX()+x,a.getY()+y);
 		}
 
 		public boolean equals(Object o)
@@ -69,8 +68,9 @@ public class Grid
 		public int hashCode(){return 31*x+y;}
 	}
 
-	public static void generate()
+	public static void generate(long worldSeed)
 	{
+		r.setSeed(worldSeed);
 		Grid grid = new Grid();
 		int center[] = {r.nextInt(),r.nextInt()};
 		Coords pos = new Coords(center[0],center[1]);
