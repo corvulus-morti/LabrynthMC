@@ -2,6 +2,7 @@ package com.github.labrynthmc;
 
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.event.RegistryEvent;
@@ -20,6 +21,7 @@ public final class Labrynth
     public Labrynth()
     {
         LOGGER.debug("Hello!");
+        MinecraftForge.EVENT_BUS.register(new ModEventSubscriber());
     }
 
 }

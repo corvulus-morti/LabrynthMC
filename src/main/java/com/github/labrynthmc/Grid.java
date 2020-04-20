@@ -1,7 +1,7 @@
 package com.github.labrynthmc;
 
 
-import org.apache.commons.lang3.ObjectUtils;
+//import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +10,7 @@ import java.util.Random;
 public class Grid
 {
 	public static final Random r = new Random();
-	private HashMap<Coords, Cell> grid;
+	private HashMap<Coords, Cell> grid = new HashMap<>();
 	private Coords center;
 	private int Dx[] = new int[2];
 	private int Dy[] = new int[2];
@@ -20,7 +20,7 @@ public class Grid
 
 	public void addCell(Coords pos)
 	{
-		if (grid.isEmpty())
+		if (this.grid.isEmpty())
 		{
 			Dx = new int[] {pos.getX(),pos.getX()};
 			Dy = new int[] {pos.getY(),pos.getY()};
@@ -64,15 +64,22 @@ public class Grid
 			return this.x == a.getX() && this.y == a.getY();
 		}
 
+		public String toString()
+		{
+			return "("+this.x +","+this.y + ")";
+		}
 
 		public int hashCode(){return 31*x+y;}
 	}
 
-	public static void generate(long worldSeed)
+	public static Grid genMaze(long worldSeed, int maxPaths)
 	{
 		r.setSeed(worldSeed);
 		Grid grid = new Grid();
-		int center[] = {r.nextInt(),r.nextInt()};
+		int center[] = {
+				(int) Math.round(r.nextGaussian()*100),
+				(int) Math.round(r.nextGaussian()*100)
+		};
 		Coords pos = new Coords(center[0],center[1]);
 
 		Coords move[] = new Coords[4];
@@ -120,10 +127,9 @@ public class Grid
 						pos.add(move[2]).add(move[3])
 				};
 
-		int loopz = 500;
 		int lz = 0;
 
-		while (lz < loopz)
+		while (lz < maxPaths)
 		{
 			lz++;
 			ArrayList<Coords> path = new ArrayList<>();
@@ -136,14 +142,15 @@ public class Grid
 			}while(grid.getCell(start) != null);
 
 			path.add(start);
-			int d = r.nextInt()%4;
+			int d = r.nextInt(4);
 			pos = new Coords(start.getX(),start.getY());
 			pos = pos.add(move[d]);
 
 			while (grid.getCell(pos) == null)
 			{
-				int rot = r.nextInt()%(3) - 1;
+				int rot = r.nextInt(3)-1;
 				d = (d+rot+4)%4;
+
 				pos = pos.add(move[d]);
 
 				byte check = 0;
@@ -160,13 +167,13 @@ public class Grid
 					path = new ArrayList<>();
 					path.add(start);
 					pos = new Coords(start.getX(),start.getY());
-					d = r.nextInt()%4;
+					d = r.nextInt(4);
 					continue;
 				}
 				path.add(pos);
 			}
 
-			grid.getCell(path.get(0));
+			grid.addCell(path.get(0));
 			for(int n = 1; n < path.size(); n++)
 			{
 				Coords last = path.get(n-1);
@@ -191,6 +198,13 @@ public class Grid
 				}
 			}
 		}
+
+		return grid;
+	}
+
+	public static void main()
+	{
+		Grid g = genMaze(5,1);
 
 	}
 }
