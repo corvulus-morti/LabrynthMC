@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 public final class Labrynth
 {
 
-    public static final String MODID = "labrynth";
+    public static final String MODID = "labrynthmc";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     public Labrynth()
