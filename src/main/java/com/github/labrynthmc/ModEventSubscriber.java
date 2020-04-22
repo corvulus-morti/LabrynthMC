@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Level;
 @Mod.EventBusSubscriber(modid = Labrynth.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEventSubscriber
 {
-
+/*
 	@SubscribeEvent
 	public void netherLabrynthWorldGen(WorldEvent.Load event)
 	{
@@ -30,7 +30,7 @@ public class ModEventSubscriber
 
 			switch (dimType.getId()) {
 				case -1:
-					Labrynth.labrynth = Grid.genMaze(world.getSeed(), 500);
+					Labrynth.labrynth = Grid.genMaze(world.getSeed(), 0);
 					System.out.println("Maze generated, at " + Labrynth.labrynth.getCenter() + ", because world loaded, with seed " + world.getSeed() + ".");
 					break;
 				case 0:
@@ -38,6 +38,20 @@ public class ModEventSubscriber
 				case 1:
 					break;
 			}
+		}
+	}
+*/
+	@SubscribeEvent
+	public void eventCreateSpawn(WorldEvent.CreateSpawnPosition event)
+	{
+		World world = event.getWorld().getWorld();
+		DimensionType dimType = world.getDimension().getType();
+		if (!world.isRemote())
+		{
+			System.out.println("Dimension ID = " + dimType.getId());
+
+			Labrynth.labrynth = Grid.genMaze(world.getSeed(), 10);
+			System.out.println("Maze generated, at " + Labrynth.labrynth.getCenter() + ", because world loaded, with seed " + world.getSeed() + ".");
 		}
 	}
 

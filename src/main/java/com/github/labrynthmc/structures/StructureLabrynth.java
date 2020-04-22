@@ -1,5 +1,6 @@
 package com.github.labrynthmc.structures;
 
+import com.github.labrynthmc.Cell;
 import com.github.labrynthmc.Grid;
 import com.github.labrynthmc.Labrynth;
 import com.mojang.datafixers.Dynamic;
@@ -20,6 +21,8 @@ import org.apache.logging.log4j.Level;
 import java.util.Random;
 import java.util.function.Function;
 
+import static com.github.labrynthmc.Labrynth.LOGGER;
+
 public class StructureLabrynth extends Structure<NoFeatureConfig>
 {
 
@@ -31,13 +34,10 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 	@Override
 	protected ChunkPos getStartPositionForPosition(ChunkGenerator<?> chunkGenerator, Random random, int x, int z, int spacingOffsetsX, int spacingOffsetsZ)
 	{
-		Grid.Coords c = Labrynth.labrynth.getCenter();
-
-		if (c != null) return new ChunkPos(x, z);
-		else return null;
+		return new ChunkPos(Labrynth.labrynth.getCenter().getX(),Labrynth.labrynth.getCenter().getY());
 		/*
-		int maxDistance = 1;
-		int minDistance = 0;
+		int maxDistance = 31;
+		int minDistance = 30;
 
 		int xTemp = x + maxDistance * spacingOffsetsX;
 		int ztemp = z + maxDistance * spacingOffsetsZ;
@@ -52,7 +52,7 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 		validChunkX = validChunkX + random.nextInt(maxDistance - minDistance);
 		validChunkZ = validChunkZ + random.nextInt(maxDistance - minDistance);
 		return new ChunkPos(validChunkX, validChunkZ);
-		*/
+		//*/
 	}
 
 	//*/
@@ -86,7 +86,7 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 		ChunkPos chunkpos = this.getStartPositionForPosition(chunkGen, rand, chunkPosX, chunkPosZ, 0, 0);
 
 		//Checks to see if current chunk is valid to spawn in.
-		if (chunkpos != null)
+		if (chunkPosX == chunkpos.x && chunkPosZ == chunkpos.z)
 		{
 			//Checks if the biome can spawn this structure.
 			if (chunkGen.hasStructure(biome, this))
@@ -107,77 +107,75 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 		@Override
 		public void init(ChunkGenerator<?> generator, TemplateManager templateManagerIn, int chunkX, int chunkZ, Biome biomeIn)
 		{
+			//Turns the chunk coordinates into actual coordinates we can use. (Gets center of that chunk)
+			int x = (chunkX*16);
+			int z = (chunkZ*16);
 
-			for (Grid.Coords pos : Labrynth.labrynth.getKeys())
-			{
-				ResourceLocation cellType;
-				byte sides[];
-				//byte openSides[] = Labrynth.labrynth.getCell(pos).getOpenSides();
+			//Finds the y value of the terrain at location.
+			//int surfaceY = generator.func_222531_c(x, z, Heightmap.Type.WORLD_SURFACE_WG);
+			int surfaceY = 95;
+			BlockPos blockpos2 = new BlockPos(x, surfaceY, z);
 
-				char type = Labrynth.labrynth.getCell(pos).getType();
+			Grid.Coords center = Labrynth.labrynth.getCenter();
+			LOGGER.log(Level.DEBUG, "Labrynth at " + center);
 
-				switch (type){
-					case 'H':
-						cellType = StructureLabrynthPieces.HALL_WAY;
-						sides = new byte[]{1,0,1,0};
-						break;
-					case 'L':
-						cellType = StructureLabrynthPieces.ELL;
-						sides = new byte[]{1,1,0,0};
-						break;
-					case 'T':
-						cellType = StructureLabrynthPieces.TEE;
-						sides = new byte[]{1,1,1,0};
-						break;
-					case 'D':
-						cellType = StructureLabrynthPieces.DEAD_END;
-						sides = new byte[]{1,0,0,0};
-						break;
-					default:
-						cellType = StructureLabrynthPieces.FOUR_WAY;
-						sides = new byte[]{1,1,1,1};
-				}
-
-				byte[] os = Labrynth.labrynth.getCell(pos).getOpenSides();
+			for (Grid.Coords pos : Labrynth.labrynth.getKeys()) {
+				Cell cell = Labrynth.labrynth.getCell(pos);
+				int curX = (pos.getX()*16);
+				int curZ = (pos.getY()*16);
+				byte[] os = cell.getOpenSides();
 				int o = 8 * os[0] + 4 * os[1] + 2 * os[2] + 1 * os[3];
+				ResourceLocation cellType = StructureLabrynthPieces.FOUR_WAY;
+				BlockPos bp = new BlockPos(curX,surfaceY,curZ);
 				int r;
 				outer: for (r = 0; r < 4; r++) {
+					//System.out.println(o + "");
 					switch (o) {
 						case 8: // D
+							//System.out.println("Placing (D) " + cell + " at " + bp + " with rotation " + r);
+							cellType = StructureLabrynthPieces.DEAD_END;
 							break outer;
 						case 12: // L
+							//System.out.println("Placing (L) " + cell + " at " + bp + " with rotation " + r);
+							cellType = StructureLabrynthPieces.ELL;
 							break outer;
 						case 10: // H
+							//System.out.println("Placing (H) " + cell + " at " + bp + " with rotation " + r);
+							cellType = StructureLabrynthPieces.HALL_WAY;
 							break outer;
 						case 14: // T
+							//System.out.println("Placing (T) " + cell + " at " + bp + " with rotation " + r);
+							cellType = StructureLabrynthPieces.TEE;
 							break outer;
 						case 15: // 4
+							//System.out.println("Placing (4) " + cell + " at " + bp + " with rotation " + r);
+							cellType = StructureLabrynthPieces.FOUR_WAY;
 							break outer;
 					}
-					o = (o << 1)&15 + (o >> 3);
+					if (r == 3) {
+						System.out.println("Not sure what kind of piece this is " + cell.toString());
+					}
+//					o = (o >> 1) + (o & 1) * 0x8;
+					o = ((o << 1) & 15) + (o >> 3);
 				}
-
-
-				System.out.println(r);
-				Rotation rotation = Rotation.values()[r%4];
-				//Turns the chunk coordinates into actual coordinates we can use. (Gets center of that chunk)
-				int x = (chunkX << 4);
-				int z = (chunkZ << 4);
-
-				//Finds the y value of the terrain at location.
-				//int surfaceY = generator.func_222531_c(x, z, Heightmap.Type.WORLD_SURFACE_WG);
-				BlockPos blockpos = new BlockPos(x, 70, z);
-
-				//Now adds the structure pieces to this.components with all details such as where each part goes
-				//so that the structure can be added to the world by worldgen.
-				StructureLabrynthPieces.start(templateManagerIn, cellType, blockpos, rotation, this.components, this.rand);
-
-				//Sets the bounds of the structure.
-				this.recalculateStructureSize();
-
-				//I use to debug and quickly find out if the structure is spawning or not and where it is.
-				Labrynth.LOGGER.log(Level.DEBUG, "Labrynth at " + (blockpos.getX()) + " " + blockpos.getY() + " " + (blockpos.getZ()));
+				int xOffset = 0;
+				int zOffset = 0;
+				switch (r) {
+					case 1:
+						xOffset = 15;
+						break;
+					case 2:
+						xOffset = 15;
+						zOffset = 15;
+						break;
+					case 3:
+						zOffset = 15;
+						break;
+				}
+				bp = new BlockPos(curX+xOffset, surfaceY, curZ+zOffset);
+				StructureLabrynthPieces.start(templateManagerIn, cellType, bp, Rotation.values()[r%4], this.components);
 			}
+			this.recalculateStructureSize();
 		}
 	}
 

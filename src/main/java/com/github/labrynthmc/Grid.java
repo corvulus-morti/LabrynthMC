@@ -12,9 +12,10 @@ public class Grid
 {
 	public static final Random r = new Random();
 	private HashMap<Coords, Cell> grid = new HashMap<>();
-	private Coords center = null;
+	private Coords center = new Coords(0,0);
 	private int Dx[] = new int[2];
 	private int Dy[] = new int[2];
+
 
 	public Coords getCenter() {return center;}
 	public Cell getCell(Coords pos){return grid.get(pos);}
@@ -80,16 +81,16 @@ public class Grid
 		r.setSeed(worldSeed);
 		Grid grid = new Grid();
 		int center[] = {
-				(int) Math.round(r.nextGaussian()*100),
-				(int) Math.round(r.nextGaussian()*100)
+				(int) Math.round(r.nextGaussian()*10),
+				(int) Math.round(r.nextGaussian()*10)
 		};
 		Coords pos = new Coords(center[0],center[1]);
 
 		Coords move[] = new Coords[4];
-		move[0] = new Coords(0,-1);
-		move[1] = new Coords(1,0);
-		move[2] = new Coords(0,1);
-		move[3] = new Coords(-1,0);
+		move[0] = new Coords(0,-1); //north
+		move[1] = new Coords(1,0); //east
+		move[2] = new Coords(0,1); //south
+		move[3] = new Coords(-1,0); //west
 
 
 		grid.addCell(pos);
@@ -119,8 +120,8 @@ public class Grid
 		grid.addCell(pos.add(move[3]).add(move[3]));
 		grid.getCell(pos.add(move[0]).add(move[0])).setOpenSides("0010");
 		grid.getCell(pos.add(move[1]).add(move[1])).setOpenSides("0001");
-		grid.getCell(pos.add(move[2]).add(move[2])).setOpenSides("0100");
-		grid.getCell(pos.add(move[3]).add(move[3])).setOpenSides("1000");
+		grid.getCell(pos.add(move[2]).add(move[2])).setOpenSides("1000");
+		grid.getCell(pos.add(move[3]).add(move[3])).setOpenSides("0100");
 
 		final Coords fixed[] =
 				{

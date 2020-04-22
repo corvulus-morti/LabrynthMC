@@ -35,6 +35,7 @@ public class Cell
 		for(int n = 0; n < openSides.length(); n++)
 			bytes[n] = Byte.parseByte(openSides.charAt(n)+"");
 		this.openSides = bytes;
+		this.setType();
 	}
 	public void setSide(int side, boolean open)
 	{

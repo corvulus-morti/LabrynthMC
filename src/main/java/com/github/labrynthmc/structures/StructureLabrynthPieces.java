@@ -30,9 +30,9 @@ public class StructureLabrynthPieces
 
 	//private static final Map<ResourceLocation, BlockPos> OFFSET = ImmutableMap.of(LEFT_SIDE, new BlockPos(0, 1, 0), RIGHT_SIDE, new BlockPos(0, 1, 0));
 
-	public static void start(TemplateManager templateManager, ResourceLocation resourceLocation, BlockPos pos, Rotation rotation, List<StructurePiece> pieceList, Random rand)
+	public static void start(TemplateManager templateManager, ResourceLocation resourceLocation, BlockPos pos, Rotation rotation, List<StructurePiece> pieceList)
 	{
-		System.out.println("BLOCKPOS HERE!: "+pos);
+		//System.out.println("BLOCKPOS HERE!: "+pos);
 		pieceList.add(new StructureLabrynthPieces.Piece(templateManager,resourceLocation,pos,rotation));
 	}
 

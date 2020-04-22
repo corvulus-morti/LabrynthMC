@@ -32,7 +32,6 @@ public final class Labrynth
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
 
         //RegistryHandler.initItems();
-        Labrynth.labrynth = Grid.genMaze(5, 500);
 
         MinecraftForge.EVENT_BUS.register(new ModEventSubscriber());
     }
