@@ -117,7 +117,7 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 			BlockPos blockpos2 = new BlockPos(x, surfaceY, z);
 
 			Grid.Coords center = Labrynth.labrynth.getCenter();
-			LOGGER.log(Level.DEBUG, "Labrynth at " + center);
+			LOGGER.log(Level.DEBUG, "Labrynth generated at " + center +".");
 
 			for (Grid.Coords pos : Labrynth.labrynth.getKeys()) {
 				Cell cell = Labrynth.labrynth.getCell(pos);
@@ -143,7 +143,7 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 							//System.out.println("Placing (H) " + cell + " at " + bp + " with rotation " + r);
 							cellType = StructureLabrynthPieces.HALL_WAY;
 							break outer;
-						case 14: // T
+						case 13: // T
 							//System.out.println("Placing (T) " + cell + " at " + bp + " with rotation " + r);
 							cellType = StructureLabrynthPieces.TEE;
 							break outer;
@@ -153,7 +153,7 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 							break outer;
 					}
 					if (r == 3) {
-						System.out.println("Not sure what kind of piece this is " + cell.toString());
+						Labrynth.LOGGER.log(Level.ERROR,"Not sure what kind of piece this is " + cell);
 					}
 //					o = (o >> 1) + (o & 1) * 0x8;
 					o = ((o << 1) & 15) + (o >> 3);

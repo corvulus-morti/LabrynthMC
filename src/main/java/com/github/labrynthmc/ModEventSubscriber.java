@@ -49,9 +49,7 @@ public class ModEventSubscriber
 		if (!world.isRemote())
 		{
 			System.out.println("Dimension ID = " + dimType.getId());
-
-			Labrynth.labrynth = Grid.genMaze(world.getSeed(), 10);
-			System.out.println("Maze generated, at " + Labrynth.labrynth.getCenter() + ", because world loaded, with seed " + world.getSeed() + ".");
+			Labrynth.labrynth = Grid.genMaze(world.getSeed(), 100);
 		}
 	}
 

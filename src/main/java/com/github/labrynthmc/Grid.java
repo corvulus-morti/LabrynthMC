@@ -3,6 +3,8 @@ package com.github.labrynthmc;
 
 //import org.apache.commons.lang3.ObjectUtils;
 
+import org.apache.logging.log4j.Level;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -88,8 +90,8 @@ public class Grid
 
 		Coords move[] = new Coords[4];
 		move[0] = new Coords(0,-1); //north
-		move[1] = new Coords(1,0); //east
-		move[2] = new Coords(0,1); //south
+		move[1] = new Coords(1,0);  //east
+		move[2] = new Coords(0,1);  //south
 		move[3] = new Coords(-1,0); //west
 
 
@@ -146,10 +148,10 @@ public class Grid
 			}while(grid.getCell(start) != null);
 
 			path.add(start);
-			int d = r.nextInt(4);
 			pos = new Coords(start.getX(),start.getY());
-			pos = pos.add(move[d]);
+			//pos = pos.add(move[d]);
 
+			int d = r.nextInt(4);
 			while (grid.getCell(pos) == null)
 			{
 				int rot = r.nextInt(3)-1;
@@ -158,8 +160,8 @@ public class Grid
 				pos = pos.add(move[d]);
 
 				byte check = 0;
-				for (Coords p: path) if (pos.equals(p)) check = 1;
-				for (Coords p: fixed) if (pos.equals(p)) check = 1;
+				for (Coords p: path) if (pos.equals(p)) check |= 1;
+				for (Coords p: fixed) if (pos.equals(p)) check |= 1;
 				if (check == 1)
 				{
 					do{
@@ -200,17 +202,18 @@ public class Grid
 					grid.getCell(last).setSide(0, true);
 					grid.getCell(curr).setSide(2, true);
 				}
+				if (grid.getCell(curr).getType() == '0')
+					Labrynth.LOGGER.log(Level.ERROR,
+							"Something went wrong in path " + lz + " with element " + n + ":"
+							+ "\n\tCurrent: " + grid.getCell(curr) + " " + curr
+							+ "\n\tLast: " + grid.getCell(last) + " " + last
+					);
 			}
 		}
 
 		return grid;
 	}
 
-	public static void main()
-	{
-		Grid g = genMaze(5,1);
-
-	}
 }
 
 
