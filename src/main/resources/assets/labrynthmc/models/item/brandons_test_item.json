@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures":
+  {
+    "layer0": "labrynthmc:items/brandons_test_item"
+  }
+}

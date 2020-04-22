@@ -3,7 +3,7 @@ loaderVersion="[31,)"
 
 [[mods]]
     modId="labrynthmc"
-    version="0.1.0"
+    version="1.15.2-0.1.0"
     displayName="LabrynthMC"
     #updateJSONURL=
     displayURL="https://github.com/MortiBoi/LabrynthMC"
