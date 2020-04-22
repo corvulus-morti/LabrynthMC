@@ -4,11 +4,9 @@ package com.github.labrynthmc;
 import com.github.labrynthmc.world.FeatureInit;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldType;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.terraingen.WorldTypeEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -18,32 +16,26 @@ import org.apache.logging.log4j.Level;
 @Mod.EventBusSubscriber(modid = Labrynth.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEventSubscriber
 {
-/*
+//*
 	@SubscribeEvent
 	public void netherLabrynthWorldGen(WorldEvent.Load event)
 	{
-		World world = event.getWorld().getWorld();
-		DimensionType dimType = world.getDimension().getType();
-		if (!world.isRemote())
+		if (Labrynth.labrynth == null)
 		{
-			System.out.println("Dimension ID = " + dimType.getId());
-
-			switch (dimType.getId()) {
-				case -1:
-					Labrynth.labrynth = Grid.genMaze(world.getSeed(), 0);
-					System.out.println("Maze generated, at " + Labrynth.labrynth.getCenter() + ", because world loaded, with seed " + world.getSeed() + ".");
-					break;
-				case 0:
-					break;
-				case 1:
-					break;
+			World world = event.getWorld().getWorld();
+			DimensionType dimType = world.getDimension().getType();
+			if (!world.isRemote()) {
+				System.out.println("Dimension ID = " + dimType.getId());
+				Labrynth.labrynth = Grid.genMaze(world.getSeed(), 100);
 			}
 		}
 	}
-*/
+//*/
 	@SubscribeEvent
 	public void eventCreateSpawn(WorldEvent.CreateSpawnPosition event)
 	{
+
+		Labrynth.LOGGER.log(Level.INFO, "Attempted to create spawn point.");
 		World world = event.getWorld().getWorld();
 		DimensionType dimType = world.getDimension().getType();
 		if (!world.isRemote())
@@ -51,13 +43,6 @@ public class ModEventSubscriber
 			System.out.println("Dimension ID = " + dimType.getId());
 			Labrynth.labrynth = Grid.genMaze(world.getSeed(), 100);
 		}
-	}
-
-	@SubscribeEvent
-	public void eventWorldTypeEvent(WorldTypeEvent event) {
-		WorldType worldType = event.getWorldType();
-		worldType.getId();
-		System.out.println("WorldTypeEvent occurred!");
 	}
 
 
@@ -68,7 +53,7 @@ public class ModEventSubscriber
 		//If you don't do this, you'll crash.
 		FeatureInit.registerFeatures(event);
 
-		Labrynth.LOGGER.log(Level.INFO, "features/structures registered.");
+		Labrynth.LOGGER.log(Level.INFO, "Registered features/structures.");
 	}
 
 

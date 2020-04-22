@@ -35,24 +35,6 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 	protected ChunkPos getStartPositionForPosition(ChunkGenerator<?> chunkGenerator, Random random, int x, int z, int spacingOffsetsX, int spacingOffsetsZ)
 	{
 		return new ChunkPos(Labrynth.labrynth.getCenter().getX(),Labrynth.labrynth.getCenter().getY());
-		/*
-		int maxDistance = 31;
-		int minDistance = 30;
-
-		int xTemp = x + maxDistance * spacingOffsetsX;
-		int ztemp = z + maxDistance * spacingOffsetsZ;
-		int xTemp2 = xTemp < 0 ? xTemp - maxDistance + 1 : xTemp;
-		int zTemp2 = ztemp < 0 ? ztemp - maxDistance + 1 : ztemp;
-		int validChunkX = xTemp2 / maxDistance;
-		int validChunkZ = zTemp2 / maxDistance;
-
-		((SharedSeedRandom) random).setLargeFeatureSeedWithSalt(chunkGenerator.getSeed(), validChunkX, validChunkZ, this.getSeedModifier());
-		validChunkX = validChunkX * maxDistance;
-		validChunkZ = validChunkZ * maxDistance;
-		validChunkX = validChunkX + random.nextInt(maxDistance - minDistance);
-		validChunkZ = validChunkZ + random.nextInt(maxDistance - minDistance);
-		return new ChunkPos(validChunkX, validChunkZ);
-		//*/
 	}
 
 	//*/
