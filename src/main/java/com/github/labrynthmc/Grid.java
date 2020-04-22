@@ -5,18 +5,21 @@ package com.github.labrynthmc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Random;
 
 public class Grid
 {
 	public static final Random r = new Random();
 	private HashMap<Coords, Cell> grid = new HashMap<>();
-	private Coords center;
+	private Coords center = null;
 	private int Dx[] = new int[2];
 	private int Dy[] = new int[2];
 
 	public Coords getCenter() {return center;}
 	public Cell getCell(Coords pos){return grid.get(pos);}
+	public Set<Coords> getKeys(){return grid.keySet();}
+
 
 	public void addCell(Coords pos)
 	{

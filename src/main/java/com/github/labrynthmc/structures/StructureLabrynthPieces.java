@@ -22,18 +22,18 @@ import java.util.Random;
 
 public class StructureLabrynthPieces
 {
-	private static final ResourceLocation FOUR_WAY = new ResourceLocation(Labrynth.MODID + ":four_way");
-	private static final ResourceLocation HALL_WAY = new ResourceLocation(Labrynth.MODID + ":hall");
-	private static final ResourceLocation ELL = new ResourceLocation(Labrynth.MODID + ":ell");
-	private static final ResourceLocation TEE = new ResourceLocation(Labrynth.MODID + ":tee");
-	private static final ResourceLocation DEAD_END = new ResourceLocation(Labrynth.MODID + ":dead");
+	public static final ResourceLocation FOUR_WAY = new ResourceLocation(Labrynth.MODID + ":four_way");
+	public static final ResourceLocation HALL_WAY = new ResourceLocation(Labrynth.MODID + ":hall");
+	public static final ResourceLocation ELL = new ResourceLocation(Labrynth.MODID + ":ell");
+	public static final ResourceLocation TEE = new ResourceLocation(Labrynth.MODID + ":tee");
+	public static final ResourceLocation DEAD_END = new ResourceLocation(Labrynth.MODID + ":dead");
 
 	//private static final Map<ResourceLocation, BlockPos> OFFSET = ImmutableMap.of(LEFT_SIDE, new BlockPos(0, 1, 0), RIGHT_SIDE, new BlockPos(0, 1, 0));
 
-	public static void start(TemplateManager templateManager, BlockPos pos, Rotation rotation, List<StructurePiece> pieceList, Random rand)
+	public static void start(TemplateManager templateManager, ResourceLocation resourceLocation, BlockPos pos, Rotation rotation, List<StructurePiece> pieceList, Random rand)
 	{
 		System.out.println("BLOCKPOS HERE!: "+pos);
-		pieceList.add(new StructureLabrynthPieces.Piece(templateManager,FOUR_WAY,pos,rotation));
+		pieceList.add(new StructureLabrynthPieces.Piece(templateManager,resourceLocation,pos,rotation));
 	}
 
 

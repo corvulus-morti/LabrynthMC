@@ -13,7 +13,7 @@ public class Cell
 	{
 		this.type = type;
 		if   (this.type == 'L')	this.openSides = new byte[] {1,1,0,0};
-		else if (this.type == 'T')	this.openSides = new byte[] {1,1,0,0};
+		else if (this.type == 'T')	this.openSides = new byte[] {1,1,1,0};
 		else if (this.type == 'H')	this.openSides = new byte[] {1,0,1,0};
 		else if (this.type == 'D')	this.openSides = new byte[] {1,0,0,0};
 		else if (this.type == '4')	this.openSides = new byte[] {1,1,1,1};

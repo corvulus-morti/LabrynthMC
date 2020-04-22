@@ -32,7 +32,7 @@ public final class Labrynth
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
 
         //RegistryHandler.initItems();
-
+        Labrynth.labrynth = Grid.genMaze(5, 500);
 
         MinecraftForge.EVENT_BUS.register(new ModEventSubscriber());
     }
@@ -50,6 +50,7 @@ public final class Labrynth
             // Thus it is best practice to do .addFeature for all biomes and do .addStructure as well for
             // the biome you want the structure to spawn in. That way, the structure will only spawn in the
             // biomes you want but will not get cut off when generating if part of it goes into a non-valid biome.
+            //if (biome.getCategory().equals(Biome.Category.NETHER)) biome.addStructure(FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
             biome.addStructure(FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
             biome.addFeature(GenerationStage.Decoration.UNDERGROUND_STRUCTURES, FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG)
                     .withPlacement(Placement.NOPE.configure(IPlacementConfig.NO_PLACEMENT_CONFIG)));
