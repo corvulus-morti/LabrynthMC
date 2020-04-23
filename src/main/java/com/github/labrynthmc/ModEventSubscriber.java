@@ -26,7 +26,7 @@ public class ModEventSubscriber
 			DimensionType dimType = world.getDimension().getType();
 			if (!world.isRemote()) {
 				System.out.println("Dimension ID = " + dimType.getId());
-				Labrynth.labrynth = Grid.genMaze(world.getSeed(), 100);
+				Labrynth.labrynth = Grid.genMaze(world.getSeed(), Labrynth.maxPaths);
 			}
 		}
 	}
@@ -41,7 +41,7 @@ public class ModEventSubscriber
 		if (!world.isRemote())
 		{
 			System.out.println("Dimension ID = " + dimType.getId());
-			Labrynth.labrynth = Grid.genMaze(world.getSeed(), 100);
+			Labrynth.labrynth = Grid.genMaze(world.getSeed(), Labrynth.maxPaths);
 		}
 	}
 

@@ -22,6 +22,7 @@ public final class Labrynth
     public static final String MODID = "labrynthmc";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static Grid labrynth;
+    public static final int maxPaths = 500;
 
 
     //World Seed = -9024077830479927597
@@ -49,8 +50,8 @@ public final class Labrynth
             // Thus it is best practice to do .addFeature for all biomes and do .addStructure as well for
             // the biome you want the structure to spawn in. That way, the structure will only spawn in the
             // biomes you want but will not get cut off when generating if part of it goes into a non-valid biome.
-            //if (biome.getCategory().equals(Biome.Category.NETHER)) biome.addStructure(FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
-            biome.addStructure(FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
+            if (biome.getCategory().equals(Biome.Category.NETHER)) biome.addStructure(FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
+            //biome.addStructure(FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
             biome.addFeature(GenerationStage.Decoration.UNDERGROUND_STRUCTURES, FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG)
                     .withPlacement(Placement.NOPE.configure(IPlacementConfig.NO_PLACEMENT_CONFIG)));
         }
