@@ -22,6 +22,7 @@ public final class Labrynth
     public static final String MODID = "labrynthmc";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static Grid labrynth;
+    public static final int maxPaths = 500;
 
 
     //World Seed = -9024077830479927597
