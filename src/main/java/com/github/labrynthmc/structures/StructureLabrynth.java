@@ -21,8 +21,6 @@ import org.apache.logging.log4j.Level;
 import java.util.Random;
 import java.util.function.Function;
 
-import static com.github.labrynthmc.Labrynth.LOGGER;
-
 public class StructureLabrynth extends Structure<NoFeatureConfig>
 {
 
@@ -34,7 +32,10 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 	@Override
 	protected ChunkPos getStartPositionForPosition(ChunkGenerator<?> chunkGenerator, Random random, int x, int z, int spacingOffsetsX, int spacingOffsetsZ)
 	{
-		return new ChunkPos(Labrynth.labrynth.getCenter().getX(),Labrynth.labrynth.getCenter().getY());
+		Grid.Coords pos = new Grid.Coords(x,z);
+		if (Labrynth.labrynth.getCell(pos) != null)
+			return new ChunkPos(x,z);
+		else return null;
 	}
 
 	//*/
@@ -68,7 +69,7 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 		ChunkPos chunkpos = this.getStartPositionForPosition(chunkGen, rand, chunkPosX, chunkPosZ, 0, 0);
 
 		//Checks to see if current chunk is valid to spawn in.
-		if (chunkPosX == chunkpos.x && chunkPosZ == chunkpos.z)
+		if (chunkpos != null && chunkPosX == chunkpos.x && chunkPosZ == chunkpos.z)
 		{
 			//Checks if the biome can spawn this structure.
 			if (chunkGen.hasStructure(biome, this))
@@ -99,64 +100,65 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 			BlockPos blockpos2 = new BlockPos(x, surfaceY, z);
 
 			Grid.Coords center = Labrynth.labrynth.getCenter();
-			LOGGER.log(Level.DEBUG, "Labrynth generated at " + center +".");
+			//LOGGER.log(Level.DEBUG, "Labrynth generated at " + center +".");
 
-			for (Grid.Coords pos : Labrynth.labrynth.getKeys()) {
-				Cell cell = Labrynth.labrynth.getCell(pos);
-				int curX = (pos.getX()*16);
-				int curZ = (pos.getY()*16);
-				byte[] os = cell.getOpenSides();
-				int o = 8 * os[0] + 4 * os[1] + 2 * os[2] + 1 * os[3];
-				ResourceLocation cellType = StructureLabrynthPieces.FOUR_WAY;
-				BlockPos bp = new BlockPos(curX,surfaceY,curZ);
-				int r;
-				outer: for (r = 0; r < 4; r++) {
-					//System.out.println(o + "");
-					switch (o) {
-						case 8: // D
-							//System.out.println("Placing (D) " + cell + " at " + bp + " with rotation " + r);
-							cellType = StructureLabrynthPieces.DEAD_END;
-							break outer;
-						case 12: // L
-							//System.out.println("Placing (L) " + cell + " at " + bp + " with rotation " + r);
-							cellType = StructureLabrynthPieces.ELL;
-							break outer;
-						case 10: // H
-							//System.out.println("Placing (H) " + cell + " at " + bp + " with rotation " + r);
-							cellType = StructureLabrynthPieces.HALL_WAY;
-							break outer;
-						case 13: // T
-							//System.out.println("Placing (T) " + cell + " at " + bp + " with rotation " + r);
-							cellType = StructureLabrynthPieces.TEE;
-							break outer;
-						case 15: // 4
-							//System.out.println("Placing (4) " + cell + " at " + bp + " with rotation " + r);
-							cellType = StructureLabrynthPieces.FOUR_WAY;
-							break outer;
-					}
-					if (r == 3) {
-						Labrynth.LOGGER.log(Level.ERROR,"Not sure what kind of piece this is " + cell);
-					}
+			Grid.Coords pos = new Grid.Coords(chunkX,chunkZ);
+
+			Cell cell = Labrynth.labrynth.getCell(pos);
+			int curX = (pos.getX()*16);
+			int curZ = (pos.getY()*16);
+			byte[] os = cell.getOpenSides();
+			int o = 8 * os[0] + 4 * os[1] + 2 * os[2] + 1 * os[3];
+			ResourceLocation cellType = StructureLabrynthPieces.FOUR_WAY;
+			BlockPos bp = new BlockPos(curX,surfaceY,curZ);
+			int r;
+			outer: for (r = 0; r < 4; r++) {
+				//System.out.println(o + "");
+				switch (o) {
+					case 8: // D
+						//System.out.println("Placing (D) " + cell + " at " + bp + " with rotation " + r);
+						cellType = StructureLabrynthPieces.DEAD_END;
+						break outer;
+					case 12: // L
+						//System.out.println("Placing (L) " + cell + " at " + bp + " with rotation " + r);
+						cellType = StructureLabrynthPieces.ELL;
+						break outer;
+					case 10: // H
+						//System.out.println("Placing (H) " + cell + " at " + bp + " with rotation " + r);
+						cellType = StructureLabrynthPieces.HALL_WAY;
+						break outer;
+					case 13: // T
+						//System.out.println("Placing (T) " + cell + " at " + bp + " with rotation " + r);
+						cellType = StructureLabrynthPieces.TEE;
+						break outer;
+					case 15: // 4
+						//System.out.println("Placing (4) " + cell + " at " + bp + " with rotation " + r);
+						cellType = StructureLabrynthPieces.FOUR_WAY;
+						break outer;
+				}
+				if (r == 3) {
+					Labrynth.LOGGER.log(Level.ERROR,"Not sure what kind of piece this is " + cell);
+				}
 //					o = (o >> 1) + (o & 1) * 0x8;
-					o = ((o << 1) & 15) + (o >> 3);
-				}
-				int xOffset = 0;
-				int zOffset = 0;
-				switch (r) {
-					case 1:
-						xOffset = 15;
-						break;
-					case 2:
-						xOffset = 15;
-						zOffset = 15;
-						break;
-					case 3:
-						zOffset = 15;
-						break;
-				}
-				bp = new BlockPos(curX+xOffset, surfaceY, curZ+zOffset);
-				StructureLabrynthPieces.start(templateManagerIn, cellType, bp, Rotation.values()[r%4], this.components);
+				o = ((o << 1) & 15) + (o >> 3);
 			}
+			int xOffset = 0;
+			int zOffset = 0;
+			switch (r) {
+				case 1:
+					xOffset = 15;
+					break;
+				case 2:
+					xOffset = 15;
+					zOffset = 15;
+					break;
+				case 3:
+					zOffset = 15;
+					break;
+			}
+			bp = new BlockPos(curX+xOffset, surfaceY, curZ+zOffset);
+			StructureLabrynthPieces.start(templateManagerIn, cellType, bp, Rotation.values()[r%4], this.components);
+
 			this.recalculateStructureSize();
 		}
 	}
