@@ -14,14 +14,11 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 import org.apache.logging.log4j.Level;
 
 @Mod.EventBusSubscriber(modid = Labrynth.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ModEventSubscriber
-{
-//*
+public class ModEventSubscriber {
+	//*
 	@SubscribeEvent
-	public void netherLabrynthWorldGen(WorldEvent.Load event)
-	{
-		if (Labrynth.labrynth == null)
-		{
+	public void netherLabrynthWorldGen(WorldEvent.Load event) {
+		if (Labrynth.labrynth == null) {
 			World world = event.getWorld().getWorld();
 			DimensionType dimType = world.getDimension().getType();
 			if (!world.isRemote()) {
@@ -30,16 +27,15 @@ public class ModEventSubscriber
 			}
 		}
 	}
-//*/
+
+	//*/
 	@SubscribeEvent
-	public void eventCreateSpawn(WorldEvent.CreateSpawnPosition event)
-	{
+	public void eventCreateSpawn(WorldEvent.CreateSpawnPosition event) {
 
 		Labrynth.LOGGER.log(Level.INFO, "Attempted to create spawn point.");
 		World world = event.getWorld().getWorld();
 		DimensionType dimType = world.getDimension().getType();
-		if (!world.isRemote())
-		{
+		if (!world.isRemote()) {
 			System.out.println("Dimension ID = " + dimType.getId());
 			Labrynth.labrynth = Grid.genMaze(world.getSeed(), Labrynth.MAX_PATHS);
 		}
@@ -47,8 +43,7 @@ public class ModEventSubscriber
 
 
 	@SubscribeEvent
-	public static void onRegisterFeatures(final RegistryEvent.Register<Feature<?>> event)
-	{
+	public static void onRegisterFeatures(final RegistryEvent.Register<Feature<?>> event) {
 		//registers the structures/features.
 		//If you don't do this, you'll crash.
 		FeatureInit.registerFeatures(event);
@@ -57,7 +52,7 @@ public class ModEventSubscriber
 	}
 
 
-//*
+	//*
 	public static <T extends IForgeRegistryEntry<T>> T setup(final T entry, final String name) {
 		return setup(entry, new ResourceLocation(Labrynth.MODID, name));
 	}
