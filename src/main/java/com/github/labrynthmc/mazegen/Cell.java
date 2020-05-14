@@ -1,4 +1,4 @@
-package com.github.labrynthmc;
+package com.github.labrynthmc.mazegen;
 
 import java.util.Arrays;
 

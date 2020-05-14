@@ -1,7 +1,7 @@
 package com.github.labrynthmc.structures;
 
-import com.github.labrynthmc.Cell;
-import com.github.labrynthmc.Grid;
+import com.github.labrynthmc.mazegen.Cell;
+import com.github.labrynthmc.mazegen.Grid;
 import com.github.labrynthmc.Labrynth;
 import com.mojang.datafixers.Dynamic;
 import net.minecraft.util.ResourceLocation;

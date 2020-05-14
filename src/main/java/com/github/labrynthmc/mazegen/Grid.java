@@ -1,8 +1,9 @@
-package com.github.labrynthmc;
+package com.github.labrynthmc.mazegen;
 
 
 //import org.apache.commons.lang3.ObjectUtils;
 
+import com.github.labrynthmc.Labrynth;
 import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;

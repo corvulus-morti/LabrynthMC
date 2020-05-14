@@ -1,7 +1,11 @@
 package com.github.labrynthmc;
 
+import com.github.labrynthmc.mazegen.Grid;
 import com.github.labrynthmc.world.FeatureInit;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.IFeatureConfig;
 import net.minecraft.world.gen.placement.IPlacementConfig;
@@ -12,6 +16,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,50 +25,44 @@ public final class Labrynth {
 
 	public static final String MODID = "labrynthmc";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
+	/** Set this to true when you want debugging logs */
+	public static final boolean DEBUG = true;
+
 	public static Grid labrynth;
 	public static final int MAX_PATHS = 500;
 
-
-	//World Seed = -9024077830479927597
-
 	public Labrynth() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
-
-		//RegistryHandler.initItems();
 
 		MinecraftForge.EVENT_BUS.register(new ModEventSubscriber());
 	}
 
-
 	private void setup(final FMLCommonSetupEvent event) {
 		for (Biome biome : ForgeRegistries.BIOMES) {
-			// All structures needs to be added by .addStructure AND .addFeature in order to spawn.
-			//
-			// .addStructure tells Minecraft that this biome can start the generation of the structure.
-			// .addFeature tells Minecraft that the pieces of the structure can be made in this biome.
-			//
-			// Thus it is best practice to do .addFeature for all biomes and do .addStructure as well for
-			// the biome you want the structure to spawn in. That way, the structure will only spawn in the
-			// biomes you want but will not get cut off when generating if part of it goes into a non-valid biome.
-			if (biome.getCategory().equals(Biome.Category.NETHER))
+			if (biome.getCategory().equals(Biome.Category.NETHER)) {
 				biome.addStructure(FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
-			//biome.addStructure(FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG));
-			biome.addFeature(GenerationStage.Decoration.UNDERGROUND_STRUCTURES, FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG)
-					.withPlacement(Placement.NOPE.configure(IPlacementConfig.NO_PLACEMENT_CONFIG)));
+			}
+			biome.addFeature(GenerationStage.Decoration.UNDERGROUND_STRUCTURES,
+					FeatureInit.LABRYNTH.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG)
+							.withPlacement(Placement.NOPE.configure(IPlacementConfig.NO_PLACEMENT_CONFIG)));
 		}
 	}
 
-	private void doClientStuff(final FMLClientSetupEvent event) {
+	/**
+	 * Generates a maze with the world's seed and
+	 * @param iWorld The world which supplies the seed
+	 */
+	public static void generateMaze(IWorld iWorld) {
+		World world = iWorld.getWorld();
+		DimensionType dimType = world.getDimension().getType();
+		if (!world.isRemote()) {
+			if (DEBUG) {
+				LOGGER.log(Level.INFO, "Dimension ID = " + dimType.getId());
+			}
+			labrynth = Grid.genMaze(world.getSeed(), MAX_PATHS);
+
+		} else if (DEBUG) {
+			LOGGER.log(Level.INFO, "Not generating maze, world is remote");
+		}
 	}
-/*
-    public static final ItemGroup TAB = new ItemGroup("labrynthmcTab")
-    {
-        @Override
-        public ItemStack createIcon()
-        {
-            return new ItemStack(RegistryHandler.BRANDONS_TEST_ITEM.get());
-        }
-    };
-//*/
 }
