@@ -1,7 +1,7 @@
 package com.github.labrynthmc.structures;
 
-import com.github.labrynthmc.Cell;
-import com.github.labrynthmc.Grid;
+import com.github.labrynthmc.mazegen.Cell;
+import com.github.labrynthmc.mazegen.Grid;
 import com.github.labrynthmc.Labrynth;
 import com.mojang.datafixers.Dynamic;
 import net.minecraft.util.ResourceLocation;
@@ -21,8 +21,7 @@ import org.apache.logging.log4j.Level;
 import java.util.Random;
 import java.util.function.Function;
 
-public class StructureLabrynth extends Structure<NoFeatureConfig>
-{
+public class StructureLabrynth extends Structure<NoFeatureConfig> {
 
 	public StructureLabrynth(Function<Dynamic<?>, ? extends NoFeatureConfig> configFactoryIn) {
 		super(configFactoryIn);
@@ -30,50 +29,42 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 
 	//*
 	@Override
-	protected ChunkPos getStartPositionForPosition(ChunkGenerator<?> chunkGenerator, Random random, int x, int z, int spacingOffsetsX, int spacingOffsetsZ)
-	{
-		Grid.Coords pos = new Grid.Coords(x,z);
+	protected ChunkPos getStartPositionForPosition(ChunkGenerator<?> chunkGenerator, Random random, int x, int z, int spacingOffsetsX, int spacingOffsetsZ) {
+		Grid.Coords pos = new Grid.Coords(x, z);
 		if (Labrynth.labrynth.getCell(pos) != null)
-			return new ChunkPos(x,z);
+			return new ChunkPos(x, z);
 		else return null;
 	}
 
 	//*/
 
 	@Override
-	public String getStructureName()
-	{
-		return Labrynth.MODID+":labrynth";
+	public String getStructureName() {
+		return Labrynth.MODID + ":labrynth";
 	}
 
 	@Override
-	public IStartFactory getStartFactory()
-	{
+	public IStartFactory getStartFactory() {
 		return StructureLabrynth.Start::new;
 	}
 
 	@Override
-	public int getSize()
-	{
+	public int getSize() {
 		return 0;
 	}
 
-	protected int getSeedModifier()
-	{
+	protected int getSeedModifier() {
 		return 12345678;
 	}
 
 	@Override
-	public boolean func_225558_a_(BiomeManager p_225558_1_, ChunkGenerator<?> chunkGen, Random rand, int chunkPosX, int chunkPosZ, Biome biome)
-	{
+	public boolean func_225558_a_(BiomeManager p_225558_1_, ChunkGenerator<?> chunkGen, Random rand, int chunkPosX, int chunkPosZ, Biome biome) {
 		ChunkPos chunkpos = this.getStartPositionForPosition(chunkGen, rand, chunkPosX, chunkPosZ, 0, 0);
 
 		//Checks to see if current chunk is valid to spawn in.
-		if (chunkpos != null && chunkPosX == chunkpos.x && chunkPosZ == chunkpos.z)
-		{
+		if (chunkpos != null && chunkPosX == chunkpos.x && chunkPosZ == chunkpos.z) {
 			//Checks if the biome can spawn this structure.
-			if (chunkGen.hasStructure(biome, this))
-			{
+			if (chunkGen.hasStructure(biome, this)) {
 				return true;
 			}
 		}
@@ -81,18 +72,16 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 		return false;
 	}
 
-	public static class Start extends StructureStart
-	{
-		public Start(Structure<?> structureIn, int chunkX, int chunkZ, MutableBoundingBox mutableBoundingBox, int referenceIn, long seedIn)
-		{
+	public static class Start extends StructureStart {
+		public Start(Structure<?> structureIn, int chunkX, int chunkZ, MutableBoundingBox mutableBoundingBox, int referenceIn, long seedIn) {
 			super(structureIn, chunkX, chunkZ, mutableBoundingBox, referenceIn, seedIn);
 		}
+
 		@Override
-		public void init(ChunkGenerator<?> generator, TemplateManager templateManagerIn, int chunkX, int chunkZ, Biome biomeIn)
-		{
+		public void init(ChunkGenerator<?> generator, TemplateManager templateManagerIn, int chunkX, int chunkZ, Biome biomeIn) {
 			//Turns the chunk coordinates into actual coordinates we can use. (Gets center of that chunk)
-			int x = (chunkX*16);
-			int z = (chunkZ*16);
+			int x = (chunkX * 16);
+			int z = (chunkZ * 16);
 
 			//Finds the y value of the terrain at location.
 			//int surfaceY = generator.func_222531_c(x, z, Heightmap.Type.WORLD_SURFACE_WG);
@@ -102,17 +91,18 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 			Grid.Coords center = Labrynth.labrynth.getCenter();
 			//LOGGER.log(Level.DEBUG, "Labrynth generated at " + center +".");
 
-			Grid.Coords pos = new Grid.Coords(chunkX,chunkZ);
+			Grid.Coords pos = new Grid.Coords(chunkX, chunkZ);
 
 			Cell cell = Labrynth.labrynth.getCell(pos);
-			int curX = (pos.getX()*16);
-			int curZ = (pos.getY()*16);
+			int curX = (pos.getX() * 16);
+			int curZ = (pos.getY() * 16);
 			byte[] os = cell.getOpenSides();
 			int o = 8 * os[0] + 4 * os[1] + 2 * os[2] + 1 * os[3];
 			ResourceLocation cellType = StructureLabrynthPieces.FOUR_WAY;
-			BlockPos bp = new BlockPos(curX,surfaceY,curZ);
+			BlockPos bp = new BlockPos(curX, surfaceY, curZ);
 			int r;
-			outer: for (r = 0; r < 4; r++) {
+			outer:
+			for (r = 0; r < 4; r++) {
 				//System.out.println(o + "");
 				switch (o) {
 					case 8: // D
@@ -137,7 +127,7 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 						break outer;
 				}
 				if (r == 3) {
-					Labrynth.LOGGER.log(Level.ERROR,"Not sure what kind of piece this is " + cell);
+					Labrynth.LOGGER.log(Level.ERROR, "Not sure what kind of piece this is " + cell);
 				}
 //					o = (o >> 1) + (o & 1) * 0x8;
 				o = ((o << 1) & 15) + (o >> 3);
@@ -156,8 +146,8 @@ public class StructureLabrynth extends Structure<NoFeatureConfig>
 					zOffset = 15;
 					break;
 			}
-			bp = new BlockPos(curX+xOffset, surfaceY, curZ+zOffset);
-			StructureLabrynthPieces.start(templateManagerIn, cellType, bp, Rotation.values()[r%4], this.components);
+			bp = new BlockPos(curX + xOffset, surfaceY, curZ + zOffset);
+			StructureLabrynthPieces.start(templateManagerIn, cellType, bp, Rotation.values()[r % 4], this.components);
 
 			this.recalculateStructureSize();
 		}

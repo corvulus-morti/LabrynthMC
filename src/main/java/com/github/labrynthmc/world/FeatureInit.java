@@ -14,8 +14,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import java.util.Locale;
 
 
-public class FeatureInit
-{
+public class FeatureInit {
 	//Static instance of our structure so we can reference it and add it to biomes easily.
 	public static Structure<NoFeatureConfig> LABRYNTH = new StructureLabrynth(NoFeatureConfig::deserialize);
 	public static IStructurePieceType LABRYNTH_PIECE = StructureLabrynthPieces.Piece::new;
@@ -23,8 +22,7 @@ public class FeatureInit
 	/*
 	 * Registers the features and structures. Normal Features will be registered here too.
 	 */
-	public static void registerFeatures(Register<Feature<?>> event)
-	{
+	public static void registerFeatures(Register<Feature<?>> event) {
 
 		IForgeRegistry<Feature<?>> registry = event.getRegistry();
 
@@ -42,8 +40,7 @@ public class FeatureInit
 	/*
 	 * Registers the structures pieces themselves. If you don't do this part, Forge will complain to you in the Console.
 	 */
-	static IStructurePieceType register(IStructurePieceType structurePiece, String key)
-	{
+	static IStructurePieceType register(IStructurePieceType structurePiece, String key) {
 		return Registry.register(Registry.STRUCTURE_PIECE, key.toLowerCase(Locale.ROOT), structurePiece);
 	}
 }

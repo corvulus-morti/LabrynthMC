@@ -20,30 +20,23 @@ import net.minecraft.world.gen.feature.template.TemplateManager;
 import java.util.List;
 import java.util.Random;
 
-public class StructureLabrynthPieces
-{
+public class StructureLabrynthPieces {
 	public static final ResourceLocation FOUR_WAY = new ResourceLocation(Labrynth.MODID + ":four_way");
 	public static final ResourceLocation HALL_WAY = new ResourceLocation(Labrynth.MODID + ":hall");
 	public static final ResourceLocation ELL = new ResourceLocation(Labrynth.MODID + ":ell");
 	public static final ResourceLocation TEE = new ResourceLocation(Labrynth.MODID + ":tee");
 	public static final ResourceLocation DEAD_END = new ResourceLocation(Labrynth.MODID + ":dead");
 
-	//private static final Map<ResourceLocation, BlockPos> OFFSET = ImmutableMap.of(LEFT_SIDE, new BlockPos(0, 1, 0), RIGHT_SIDE, new BlockPos(0, 1, 0));
-
-	public static void start(TemplateManager templateManager, ResourceLocation resourceLocation, BlockPos pos, Rotation rotation, List<StructurePiece> pieceList)
-	{
-		//System.out.println("BLOCKPOS HERE!: "+pos);
-		pieceList.add(new StructureLabrynthPieces.Piece(templateManager,resourceLocation,pos,rotation));
+	public static void start(TemplateManager templateManager, ResourceLocation resourceLocation, BlockPos pos, Rotation rotation, List<StructurePiece> pieceList) {
+		pieceList.add(new StructureLabrynthPieces.Piece(templateManager, resourceLocation, pos, rotation));
 	}
 
 
-
-	public static class Piece extends TemplateStructurePiece
-	{
+	public static class Piece extends TemplateStructurePiece {
 		private ResourceLocation templateResource;
 		private Rotation rotation;
-		public Piece(TemplateManager templateManager, ResourceLocation templateResource, BlockPos pos, Rotation rotation)
-		{
+
+		public Piece(TemplateManager templateManager, ResourceLocation templateResource, BlockPos pos, Rotation rotation) {
 			super(FeatureInit.LABRYNTH_PIECE, 0);
 			this.rotation = rotation;
 			this.templatePosition = pos;
@@ -74,14 +67,12 @@ public class StructureLabrynthPieces
 		}
 
 		@Override
-		protected void handleDataMarker(String function, BlockPos pos, IWorld worldIn, Random rand, MutableBoundingBox sbb)
-		{
+		protected void handleDataMarker(String function, BlockPos pos, IWorld worldIn, Random rand, MutableBoundingBox sbb) {
 			//TODO
 		}
 
 		@Override
-		public boolean func_225577_a_(IWorld worldIn, ChunkGenerator<?> p_225577_2_, Random randomIn, MutableBoundingBox structureBoundingBoxIn, ChunkPos chunkPos)
-		{
+		public boolean func_225577_a_(IWorld worldIn, ChunkGenerator<?> p_225577_2_, Random randomIn, MutableBoundingBox structureBoundingBoxIn, ChunkPos chunkPos) {
 			PlacementSettings placementsettings = (new PlacementSettings()).setRotation(this.rotation).setMirror(Mirror.NONE);
 			this.templatePosition.add(Template.transformedBlockPos(placementsettings, new BlockPos(0, 0, 0)));
 
