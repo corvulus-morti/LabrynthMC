@@ -84,26 +84,33 @@ public class MazeDraw extends JFrame {
 		@Override
 		public void paint(Graphics g) {
 			super.paint(g);
+			g.setColor(Color.BLACK);
 			System.out.println(grid.getKeys().size());
 			for (Coords coords : grid.getKeys()) {
-				Cell c = grid.getCell(coords);
-				Point p = coordToPoint(coords);
-				g.fillRect(p.x - 2, p.y - 2, 4, 4);
-				g.fillRect(p.x + 8, p.y - 2, 4, 4);
-				g.fillRect(p.x - 2, p.y + 8, 4, 4);
-				g.fillRect(p.x + 8, p.y + 8, 4, 4);
-				if (c.getOpenSides()[0] == 0) {
-					g.fillRect(p.x + 2, p.y - 2, 6, 4);
-				}
-				if (c.getOpenSides()[1] == 0) {
-					g.fillRect(p.x + 8, p.y + 2, 4, 6);
-				}
-				if (c.getOpenSides()[2] == 0) {
-					g.fillRect(p.x + 2, p.y + 8, 6, 4);
-				}
-				if (c.getOpenSides()[3] == 0) {
-					g.fillRect(p.x - 2, p.y + 2, 4, 6);
-				}
+				drawCell(g, coords);
+			}
+			g.setColor(Color.RED);
+			drawCell(g, grid.getEntrance());
+		}
+
+		private void drawCell(Graphics g, Coords coords) {
+			Cell c = grid.getCell(coords);
+			Point p = coordToPoint(coords);
+			g.fillRect(p.x - 2, p.y - 2, 4, 4);
+			g.fillRect(p.x + 8, p.y - 2, 4, 4);
+			g.fillRect(p.x - 2, p.y + 8, 4, 4);
+			g.fillRect(p.x + 8, p.y + 8, 4, 4);
+			if (c.getOpenSides()[0] == 0) {
+				g.fillRect(p.x + 2, p.y - 2, 6, 4);
+			}
+			if (c.getOpenSides()[1] == 0) {
+				g.fillRect(p.x + 8, p.y + 2, 4, 6);
+			}
+			if (c.getOpenSides()[2] == 0) {
+				g.fillRect(p.x + 2, p.y + 8, 6, 4);
+			}
+			if (c.getOpenSides()[3] == 0) {
+				g.fillRect(p.x - 2, p.y + 2, 4, 6);
 			}
 		}
 

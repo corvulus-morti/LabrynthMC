@@ -9,15 +9,33 @@ import org.apache.logging.log4j.Level;
 import java.util.*;
 
 public class Grid {
-	public static final Random r = new Random();
+
+
+
+	public static final Coords MOVE[] = {
+		new Coords(0, -1), //north
+		new Coords(1, 0),  //east
+		new Coords(0, 1),  //south
+		new Coords(-1, 0) //west
+	};
+
+	private  Random r;
 	private HashMap<Coords, Cell> grid = new HashMap<>();
 	private Coords center = new Coords(0, 0);
+	private Coords entrance = new Coords(0, 0);
 	private int Dx[] = new int[2];
 	private int Dy[] = new int[2];
 
+	private Grid(long seed) {
+		r = new Random(seed);
+	}
 
 	public Coords getCenter() {
 		return center;
+	}
+
+	public Coords getEntrance() {
+		return entrance;
 	}
 
 	public Cell getCell(Coords pos) {
@@ -47,57 +65,51 @@ public class Grid {
 	//CREATE METHOD TO GENERATE STRUCTURES IN GRID
 
 	public static Grid genMaze(long worldSeed, int maxPaths) {
-		r.setSeed(worldSeed);
-		Grid grid = new Grid();
+		Grid grid = new Grid(worldSeed);
+		Random r = grid.r;
 		int center[] = {
 				(int) Math.round(r.nextGaussian() * 10),
 				(int) Math.round(r.nextGaussian() * 10)
 		};
 		Coords pos = new Coords(center[0], center[1]);
 
-		Coords move[] = new Coords[4];
-		move[0] = new Coords(0, -1); //north
-		move[1] = new Coords(1, 0);  //east
-		move[2] = new Coords(0, 1);  //south
-		move[3] = new Coords(-1, 0); //west
-
 
 		grid.addCell(pos);
-		grid.addCell(pos.add(move[0]));
-		grid.addCell(pos.add(move[1]));
-		grid.addCell(pos.add(move[2]));
-		grid.addCell(pos.add(move[3]));
+		grid.addCell(pos.add(MOVE[0]));
+		grid.addCell(pos.add(MOVE[1]));
+		grid.addCell(pos.add(MOVE[2]));
+		grid.addCell(pos.add(MOVE[3]));
 
 		grid.getCell(pos).setOpenSides("1111");
-		grid.getCell(pos.add(move[0])).setOpenSides("1111");
-		grid.getCell(pos.add(move[1])).setOpenSides("1111");
-		grid.getCell(pos.add(move[2])).setOpenSides("1111");
-		grid.getCell(pos.add(move[3])).setOpenSides("1111");
+		grid.getCell(pos.add(MOVE[0])).setOpenSides("1111");
+		grid.getCell(pos.add(MOVE[1])).setOpenSides("1111");
+		grid.getCell(pos.add(MOVE[2])).setOpenSides("1111");
+		grid.getCell(pos.add(MOVE[3])).setOpenSides("1111");
 
-		grid.addCell(pos.add(move[0]).add(move[3]));
-		grid.addCell(pos.add(move[0]).add(move[1]));
-		grid.addCell(pos.add(move[2]).add(move[3]));
-		grid.addCell(pos.add(move[2]).add(move[1]));
-		grid.getCell(pos.add(move[0]).add(move[3])).setOpenSides("0110");
-		grid.getCell(pos.add(move[0]).add(move[1])).setOpenSides("0011");
-		grid.getCell(pos.add(move[2]).add(move[3])).setOpenSides("1100");
-		grid.getCell(pos.add(move[2]).add(move[1])).setOpenSides("1001");
+		grid.addCell(pos.add(MOVE[0]).add(MOVE[3]));
+		grid.addCell(pos.add(MOVE[0]).add(MOVE[1]));
+		grid.addCell(pos.add(MOVE[2]).add(MOVE[3]));
+		grid.addCell(pos.add(MOVE[2]).add(MOVE[1]));
+		grid.getCell(pos.add(MOVE[0]).add(MOVE[3])).setOpenSides("0110");
+		grid.getCell(pos.add(MOVE[0]).add(MOVE[1])).setOpenSides("0011");
+		grid.getCell(pos.add(MOVE[2]).add(MOVE[3])).setOpenSides("1100");
+		grid.getCell(pos.add(MOVE[2]).add(MOVE[1])).setOpenSides("1001");
 
-		grid.addCell(pos.add(move[0]).add(move[0]));
-		grid.addCell(pos.add(move[1]).add(move[1]));
-		grid.addCell(pos.add(move[2]).add(move[2]));
-		grid.addCell(pos.add(move[3]).add(move[3]));
-		grid.getCell(pos.add(move[0]).add(move[0])).setOpenSides("0010");
-		grid.getCell(pos.add(move[1]).add(move[1])).setOpenSides("0001");
-		grid.getCell(pos.add(move[2]).add(move[2])).setOpenSides("1000");
-		grid.getCell(pos.add(move[3]).add(move[3])).setOpenSides("0100");
+		grid.addCell(pos.add(MOVE[0]).add(MOVE[0]));
+		grid.addCell(pos.add(MOVE[1]).add(MOVE[1]));
+		grid.addCell(pos.add(MOVE[2]).add(MOVE[2]));
+		grid.addCell(pos.add(MOVE[3]).add(MOVE[3]));
+		grid.getCell(pos.add(MOVE[0]).add(MOVE[0])).setOpenSides("0010");
+		grid.getCell(pos.add(MOVE[1]).add(MOVE[1])).setOpenSides("0001");
+		grid.getCell(pos.add(MOVE[2]).add(MOVE[2])).setOpenSides("1000");
+		grid.getCell(pos.add(MOVE[3]).add(MOVE[3])).setOpenSides("0100");
 
 		final Coords fixed[] =
 				{
-						pos.add(move[0]).add(move[1]),
-						pos.add(move[0]).add(move[3]),
-						pos.add(move[2]).add(move[1]),
-						pos.add(move[2]).add(move[3])
+						pos.add(MOVE[0]).add(MOVE[1]),
+						pos.add(MOVE[0]).add(MOVE[3]),
+						pos.add(MOVE[2]).add(MOVE[1]),
+						pos.add(MOVE[2]).add(MOVE[3])
 				};
 
 		int lz = 0;
@@ -122,7 +134,7 @@ public class Grid {
 				int rot = r.nextInt(3) - 1;
 				d = (d + rot + 4) % 4;
 
-				pos = pos.add(move[d]);
+				pos = pos.add(MOVE[d]);
 
 				byte check = 0;
 				for (Coords p : path) if (pos.equals(p)) check |= 1;
@@ -171,21 +183,54 @@ public class Grid {
 			}
 		}
 
+		grid.createEntrance();
 
-		// Create the entrance
-		// Bfs
-		Queue<Cell> queue = new LinkedList<>();
+		return grid;
+	}
 
-		queue.add(grid.getCell(grid.center));
+	private void createEntrance() {
+		Set<Coords> visited = new HashSet<>();
+		Queue<Coords> queue = new LinkedList<>();
+		queue.add(center);
 
+		Coords lastCandidate = null;
 		while (!queue.isEmpty()) {
-			Cell cell = queue.poll();
+			Coords coords = queue.poll();
+			if (visited.contains(coords)) {
+				continue;
+			}
+			visited.add(coords);
+			boolean isOnSide = getCell(coords.add(MOVE[0])) == null || getCell(coords.add(MOVE[1])) == null
+					|| getCell(coords.add(MOVE[2])) == null || getCell(coords.add(MOVE[3])) == null;
+			if (isOnSide) {
+				lastCandidate = coords;
+			}
+			List<Integer> sides = Arrays.asList(0,1,2,3);
+			Collections.shuffle(sides, r); // Add new sides in a random order
+			for (int side : sides) {
+				Cell c = getCell(coords);
+				if (c.getOpenSides()[side] == 1) {
+					queue.add(coords.add(MOVE[side]));
+				}
+			}
 
 		}
 
+		if (lastCandidate != null) {
+			entrance = lastCandidate;
+		} else {
+			entrance = center;
+		}
+		List<Integer> sides = Arrays.asList(0,1,2,3);
+		Collections.shuffle(sides, r); // Add new sides in a random order
+		for (int side : sides) {
+			Cell c = getCell(entrance);
+			if (getCell(entrance.add(MOVE[side])) == null) {
+				c.setOpenSide(side, true);
+				break;
+			}
+		}
 
-
-		return grid;
 	}
 
 }
