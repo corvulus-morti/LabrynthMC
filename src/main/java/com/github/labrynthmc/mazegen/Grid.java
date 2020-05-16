@@ -6,10 +6,7 @@ package com.github.labrynthmc.mazegen;
 import com.github.labrynthmc.Labrynth;
 import org.apache.logging.log4j.Level;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class Grid {
 	public static final Random r = new Random();
@@ -48,51 +45,6 @@ public class Grid {
 	}
 
 	//CREATE METHOD TO GENERATE STRUCTURES IN GRID
-
-	public static class Coords {
-		private int x, y;
-
-		public Coords() {
-		}
-
-		public Coords(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
-
-		public int getX() {
-			return x;
-		}
-
-		public int getY() {
-			return y;
-		}
-
-		public void setX(int x) {
-			this.x = x;
-		}
-
-		public void setY(int y) {
-			this.y = y;
-		}
-
-		public Coords add(Coords a) {
-			return new Coords(a.getX() + x, a.getY() + y);
-		}
-
-		public boolean equals(Object o) {
-			Coords a = (Coords) o;
-			return this.x == a.getX() && this.y == a.getY();
-		}
-
-		public String toString() {
-			return "(" + this.x + "," + this.y + ")";
-		}
-
-		public int hashCode() {
-			return 31 * x + y;
-		}
-	}
 
 	public static Grid genMaze(long worldSeed, int maxPaths) {
 		r.setSeed(worldSeed);
@@ -218,6 +170,20 @@ public class Grid {
 					);
 			}
 		}
+
+
+		// Create the entrance
+		// Bfs
+		Queue<Cell> queue = new LinkedList<>();
+
+		queue.add(grid.getCell(grid.center));
+
+		while (!queue.isEmpty()) {
+			Cell cell = queue.poll();
+
+		}
+
+
 
 		return grid;
 	}
