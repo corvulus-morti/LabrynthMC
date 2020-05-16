@@ -1,7 +1,7 @@
 package com.github.labrynthmc.structures;
 
 import com.github.labrynthmc.mazegen.Cell;
-import com.github.labrynthmc.mazegen.Grid;
+import com.github.labrynthmc.mazegen.Coords;
 import com.github.labrynthmc.Labrynth;
 import com.mojang.datafixers.Dynamic;
 import net.minecraft.util.ResourceLocation;
@@ -30,7 +30,7 @@ public class StructureLabrynth extends Structure<NoFeatureConfig> {
 	//*
 	@Override
 	protected ChunkPos getStartPositionForPosition(ChunkGenerator<?> chunkGenerator, Random random, int x, int z, int spacingOffsetsX, int spacingOffsetsZ) {
-		Grid.Coords pos = new Grid.Coords(x, z);
+		Coords pos = new Coords(x, z);
 		if (Labrynth.labrynth.getCell(pos) != null)
 			return new ChunkPos(x, z);
 		else return null;
@@ -88,10 +88,10 @@ public class StructureLabrynth extends Structure<NoFeatureConfig> {
 			int surfaceY = 20;
 			BlockPos blockpos2 = new BlockPos(x, surfaceY, z);
 
-			Grid.Coords center = Labrynth.labrynth.getCenter();
+			Coords center = Labrynth.labrynth.getCenter();
 			//LOGGER.log(Level.DEBUG, "Labrynth generated at " + center +".");
 
-			Grid.Coords pos = new Grid.Coords(chunkX, chunkZ);
+			Coords pos = new Coords(chunkX, chunkZ);
 
 			Cell cell = Labrynth.labrynth.getCell(pos);
 			int curX = (pos.getX() * 16);
