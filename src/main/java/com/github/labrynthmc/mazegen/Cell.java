@@ -36,6 +36,10 @@ public class Cell {
 		this.setType();
 	}
 
+	public void setOpenSide(int side, boolean isOpen) {
+		openSides[side] = (byte) (isOpen ? 1 :  0);
+	}
+
 	public void setSide(int side, boolean open) {
 		byte c;
 		if (open) c = 1;
