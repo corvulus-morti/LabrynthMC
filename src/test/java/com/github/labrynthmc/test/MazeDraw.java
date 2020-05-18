@@ -146,6 +146,12 @@ public class MazeDraw extends JFrame {
 		private void drawCell(Graphics g, Coords coords) {
 			Cell c = grid.getCell(coords);
 			Point p = coordToPoint(coords);
+			if (grid.isInSolution(coords)) {
+				Color color = g.getColor();
+				g.setColor(Color.YELLOW);
+				g.fillRect(p.x, p.y, 10, 10);
+				g.setColor(color);
+			}
 			g.fillRect(p.x - 2, p.y - 2, 4, 4);
 			g.fillRect(p.x + 8, p.y - 2, 4, 4);
 			g.fillRect(p.x - 2, p.y + 8, 4, 4);
