@@ -138,16 +138,15 @@ public class Grid {
 			double randRad;
 			double randAngle;
 			do {
-				randRad = r.nextGaussian()*std+(double)rad;
+				randRad = r.nextGaussian() * std + (double) rad;
 				randAngle = r.nextDouble()*2*Math.PI;
-				int X = (int)Math.round( randRad*Math.cos(randAngle) ) + center[0];
-				int Y = (int)Math.round( randRad*Math.sin(randAngle) ) + center[1];
+				int X = (int) Math.round(randRad * Math.cos(randAngle)) + center[0];
+				int Y = (int) Math.round(randRad * Math.sin(randAngle)) + center[1];
 				start.setX(X);
 				start.setY(Y);
-				if (attempts == 100)
-				{
-					rad += 2*std;
-					Labrynth.LOGGER.log(Level.ERROR, attempts );
+				if (++attempts == 100) {
+					attempts = 0;
+					rad += 2 * std;
 				}
 			} while (grid.getCell(start) != null);
 			attempts = 0;
@@ -167,17 +166,15 @@ public class Grid {
 				for (Coords p : fixed) if (pos.equals(p)) check |= 1;
 				if (check == 1) {
 					do {
-						randRad = r.nextGaussian()*std+(double)rad;
-						randAngle = r.nextDouble()*2*Math.PI;
+						randRad = r.nextGaussian() * std + (double) rad;
+						randAngle = r.nextDouble() * 2 * Math.PI;
 						int X = (int)Math.round( randRad*Math.cos(randAngle) ) + center[0];
 						int Y = (int)Math.round( randRad*Math.sin(randAngle) ) + center[1];
 						start.setX(X);
 						start.setY(Y);
-						attempts += 1;
-						if (attempts == 100)
-						{
-							rad += 2*std;
-							Labrynth.LOGGER.log(Level.ERROR, attempts );
+						if (++attempts == 100) {
+							attempts = 0;
+							rad += 2 * std;
 						}
 					} while (grid.getCell(start) != null);
 					attempts = 0;
