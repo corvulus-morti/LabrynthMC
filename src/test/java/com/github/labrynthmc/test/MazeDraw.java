@@ -56,7 +56,8 @@ public class MazeDraw extends JFrame {
 
 		mazePanel.add(panel, BorderLayout.NORTH);
 		mazeCanvas = new MazeCanvas(Long.parseLong(seedTextField.getText()), Integer.parseInt(paths.getText()));
-		mazePanel.add(mazeCanvas, BorderLayout.CENTER);
+		JScrollPane scrollPane = new JScrollPane(mazeCanvas);
+		mazePanel.add(scrollPane, BorderLayout.CENTER);
 
 		add(mazePanel);
 
@@ -119,6 +120,7 @@ public class MazeDraw extends JFrame {
 				topy = Math.min(topy, c.getY());
 				bottomy = Math.max(bottomy, c.getY());
 			}
+			setPreferredSize(new Dimension((rightx - leftx) * 10 + 40, (bottomy - topy) * 10 + 40));
 			setVisible(true);
 			repaint();
 		}
