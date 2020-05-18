@@ -31,7 +31,7 @@ public final class Labrynth {
 	public static final boolean DEBUG = true;
 
 	public static Grid labrynth;
-	public static final int MAX_PATHS = 500;
+	public static final int MAX_PATHS = 1500;
 
 	static {
 		if (DEBUG) {

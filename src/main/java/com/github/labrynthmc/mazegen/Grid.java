@@ -132,12 +132,25 @@ public class Grid {
 			ArrayList<Coords> path = new ArrayList<>();
 
 			Coords start = new Coords();
-			float std[] = {10, 10};
+			int attempts = 0;
+			int std = 50;
+			int rad = 0;
+			double randRad;
+			double randAngle;
 			do {
-				start.setX((int) Math.round(r.nextGaussian() * std[0] + center[0]));
-				start.setY((int) Math.round(r.nextGaussian() * std[1] + center[1]));
+				randRad = r.nextGaussian()*std+(double)rad;
+				randAngle = r.nextDouble()*2*Math.PI;
+				int X = (int)Math.round( randRad*Math.cos(randAngle) ) + center[0];
+				int Y = (int)Math.round( randRad*Math.sin(randAngle) ) + center[1];
+				start.setX(X);
+				start.setY(Y);
+				if (attempts == 100)
+				{
+					rad += 2*std;
+					Labrynth.LOGGER.log(Level.ERROR, attempts );
+				}
 			} while (grid.getCell(start) != null);
-
+			attempts = 0;
 			path.add(start);
 			pos = new Coords(start.getX(), start.getY());
 			//pos = pos.add(move[d]);
@@ -154,11 +167,20 @@ public class Grid {
 				for (Coords p : fixed) if (pos.equals(p)) check |= 1;
 				if (check == 1) {
 					do {
-						start = new Coords(
-								(int) Math.round(r.nextGaussian() * std[0] + center[0]),
-								(int) Math.round(r.nextGaussian() * std[1] + center[1])
-						);
+						randRad = r.nextGaussian()*std+(double)rad;
+						randAngle = r.nextDouble()*2*Math.PI;
+						int X = (int)Math.round( randRad*Math.cos(randAngle) ) + center[0];
+						int Y = (int)Math.round( randRad*Math.sin(randAngle) ) + center[1];
+						start.setX(X);
+						start.setY(Y);
+						attempts += 1;
+						if (attempts == 100)
+						{
+							rad += 2*std;
+							Labrynth.LOGGER.log(Level.ERROR, attempts );
+						}
 					} while (grid.getCell(start) != null);
+					attempts = 0;
 					path = new ArrayList<>();
 					path.add(start);
 					pos = new Coords(start.getX(), start.getY());
