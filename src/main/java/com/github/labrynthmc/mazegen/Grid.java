@@ -15,6 +15,8 @@ public class Grid {
 
 	private  Random r;
 	private HashMap<Coords, Cell> grid = new HashMap<>();
+	private List<Coords> solution = new ArrayList<>();
+	private Set<Coords> solutionSet = new HashSet<>();
 	private Coords center = new Coords(0, 0);
 	private Coords entrance = new Coords(0, 0);
 	private int Dx[] = {Integer.MAX_VALUE, Integer.MIN_VALUE};
@@ -51,6 +53,10 @@ public class Grid {
 	}
 	public int getMaxY() {
 		return Dy[1];
+	}
+
+	public boolean isInSolution(Coords c) {
+		return solutionSet.contains(c);
 	}
 
 
@@ -198,6 +204,7 @@ public class Grid {
 	private void createEntrance() {
 		Set<Coords> visited = new HashSet<>();
 		Queue<Coords> queue = new LinkedList<>();
+		HashMap<Coords, Coords> nextCoordToCenter = new HashMap<>();
 		queue.add(center);
 
 		Coords lastCandidate = null;
@@ -217,7 +224,11 @@ public class Grid {
 			for (int side : sides) {
 				Cell c = getCell(coords);
 				if (c.getOpenSides()[side] == 1) {
-					queue.add(coords.add(MOVE[side]));
+					Coords next = coords.add(MOVE[side]);
+					if (!visited.contains(next)) {
+						queue.add(next);
+						nextCoordToCenter.put(next, coords);
+					}
 				}
 			}
 
@@ -238,6 +249,13 @@ public class Grid {
 			}
 		}
 
+		Coords c = entrance;
+		while(!c.equals(center)) {
+			solution.add(c);
+			c = nextCoordToCenter.get(c);
+		}
+		solution.add(c);
+		solutionSet.addAll(solution);
 	}
 
 }
