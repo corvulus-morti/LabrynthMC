@@ -92,6 +92,11 @@ public class StructureLabrynth extends Structure<NoFeatureConfig> {
 			//LOGGER.log(Level.DEBUG, "Labrynth generated at " + center +".");
 
 			Coords pos = new Coords(chunkX, chunkZ);
+			if (pos.equals(Labrynth.labrynth.getEntrance())) {
+				if (Labrynth.DEBUG) {
+					Labrynth.LOGGER.log(Level.INFO, "Placing entrance at " + "(" + x + ", " + surfaceY + ", " + z + ")");
+				}
+			}
 
 			Cell cell = Labrynth.labrynth.getCell(pos);
 			int curX = (pos.getX() * 16);

@@ -1,17 +1,11 @@
 package com.github.labrynthmc.mazegen;
 
-
-//import org.apache.commons.lang3.ObjectUtils;
-
 import com.github.labrynthmc.Labrynth;
 import org.apache.logging.log4j.Level;
 
 import java.util.*;
 
 public class Grid {
-
-
-
 	public static final Coords MOVE[] = {
 		new Coords(0, -1), //north
 		new Coords(1, 0),  //east
@@ -23,8 +17,8 @@ public class Grid {
 	private HashMap<Coords, Cell> grid = new HashMap<>();
 	private Coords center = new Coords(0, 0);
 	private Coords entrance = new Coords(0, 0);
-	private int Dx[] = new int[2];
-	private int Dy[] = new int[2];
+	private int Dx[] = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+	private int Dy[] = {Integer.MAX_VALUE, Integer.MIN_VALUE};
 
 	private Grid(long seed) {
 		r = new Random(seed);
@@ -44,6 +38,19 @@ public class Grid {
 
 	public Set<Coords> getKeys() {
 		return grid.keySet();
+	}
+
+	public int getMinX() {
+		return Dx[0];
+	}
+	public int getMaxX() {
+		return Dx[1];
+	}
+	public int getMinY() {
+		return Dy[0];
+	}
+	public int getMaxY() {
+		return Dy[1];
 	}
 
 

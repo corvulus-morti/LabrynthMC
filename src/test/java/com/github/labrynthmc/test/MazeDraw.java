@@ -7,19 +7,30 @@ import com.github.labrynthmc.mazegen.Grid;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Random;
+
+import static com.github.labrynthmc.util.MazeDrawUpdateHandler.PORT;
 
 public class MazeDraw extends JFrame {
 	public static void main(String[] args) {
 		new MazeDraw();
 	}
 
+	private MazeCanvas mazeCanvas;
+	private PlayerPosition playerPosition = new PlayerPosition();
+	private JTextField seedTextField;
+
 	private MazeDraw() {
 
-		JTextField seed = new JTextField();
-		seed.setPreferredSize(new Dimension(500, 32));
-		seed.setToolTipText("Seed");
-		seed.setText(new Random().nextLong() + "");
+		seedTextField = new JTextField();
+		seedTextField.setPreferredSize(new Dimension(500, 32));
+		seedTextField.setToolTipText("Seed");
+		seedTextField.setText(new Random().nextLong() + "");
 		JTextField paths = new JTextField();
 		paths.setPreferredSize(new Dimension(50, 32));
 		paths.setToolTipText("Max paths");
@@ -31,22 +42,25 @@ public class MazeDraw extends JFrame {
 		JButton drawButton = new JButton();
 		drawButton.setText("Draw");
 		drawButton.addActionListener(e -> {
-			mazePanel.remove(1);
-			mazePanel.add(new MazeCanvas(Long.parseLong(seed.getText()), Integer.parseInt(paths.getText())));
-			mazePanel.revalidate();
+			mazeCanvas.setSeed(Long.parseLong(seedTextField.getText()));
+			mazeCanvas.setMaxPaths(Integer.parseInt(paths.getText()));
+			mazeCanvas.regenMaze();
 		});
 
 		BorderLayout borderLayout = new BorderLayout();
 		mazePanel.setLayout(borderLayout);
 
-		panel.add(seed);
+		panel.add(seedTextField);
 		panel.add(paths);
 		panel.add(drawButton);
 
 		mazePanel.add(panel, BorderLayout.NORTH);
-		mazePanel.add(new MazeCanvas(Long.parseLong(seed.getText()), Integer.parseInt(paths.getText())), BorderLayout.CENTER);
+		mazeCanvas = new MazeCanvas(Long.parseLong(seedTextField.getText()), Integer.parseInt(paths.getText()));
+		mazePanel.add(mazeCanvas, BorderLayout.CENTER);
 
 		add(mazePanel);
+
+		new PlayerPositionListener(playerPosition, mazeCanvas);
 
 		setVisible(true);
 		pack();
@@ -56,8 +70,6 @@ public class MazeDraw extends JFrame {
 	}
 
 	private class MazeCanvas extends JPanel {
-
-		int cellSize = 10;
 
 		Grid grid;
 
@@ -69,8 +81,38 @@ public class MazeDraw extends JFrame {
 		int width = rightx - leftx;
 		int height = bottomy - topy;
 
+		public long getSeed() {
+			return seed;
+		}
+
+		public void setSeed(long seed) {
+			this.seed = seed;
+		}
+
+		public int getMaxPaths() {
+			return maxPaths;
+		}
+
+		public void setMaxPaths(int maxPaths) {
+			this.maxPaths = maxPaths;
+		}
+
+		long seed;
+		int maxPaths;
+
 		public MazeCanvas(long seed, int maxPaths) {
+			this.seed = seed;
+			this.maxPaths = maxPaths;
+			regenMaze();
+		}
+
+		public void regenMaze() {
 			grid = Grid.genMaze(seed, maxPaths);
+
+			leftx = Integer.MAX_VALUE;
+			rightx = Integer.MIN_VALUE;
+			topy = Integer.MAX_VALUE;
+			bottomy = Integer.MIN_VALUE;
 			for (Coords c : grid.getKeys()) {
 				leftx = Math.min(leftx, c.getX());
 				rightx = Math.max(rightx, c.getX());
@@ -85,12 +127,20 @@ public class MazeDraw extends JFrame {
 		public void paint(Graphics g) {
 			super.paint(g);
 			g.setColor(Color.BLACK);
-			System.out.println(grid.getKeys().size());
 			for (Coords coords : grid.getKeys()) {
 				drawCell(g, coords);
 			}
 			g.setColor(Color.RED);
 			drawCell(g, grid.getEntrance());
+
+			if (playerPosition.isActive) {
+				int relx = (playerPosition.getX() - grid.getMinX() * 16);
+				int rely = (playerPosition.getY() - grid.getMinY() * 16);
+				int playerX = (playerPosition.getX() - grid.getMinX() * 16) * 10 / 16 + 10;
+				int playerY = (playerPosition.getY() - grid.getMinY() * 16) * 10 / 16 + 10;
+				g.setColor(Color.BLUE);
+				g.fillOval(playerX - 5, playerY - 5, 10, 10);
+			}
 		}
 
 		private void drawCell(Graphics g, Coords coords) {
@@ -117,7 +167,79 @@ public class MazeDraw extends JFrame {
 		private Point coordToPoint(Coords coords) {
 			int x = coords.getX() - leftx;
 			int y = coords.getY() - topy;
-			return new Point(x * cellSize + 10, y * cellSize + 10);
+			return new Point(x * 10 + 10, y * 10 + 10);
+		}
+	}
+
+	private class PlayerPosition {
+		private int x, y;
+		private boolean isActive;
+
+		public int getX() {
+			return x;
+		}
+
+		public void setX(int x) {
+			this.x = x;
+		}
+
+		public int getY() {
+			return y;
+		}
+
+		public void setY(int y) {
+			this.y = y;
+		}
+
+		public boolean isActive() {
+			return isActive;
+		}
+
+		public void setActive(boolean active) {
+			isActive = active;
+		}
+	}
+
+	private class PlayerPositionListener {
+
+		private final PlayerPosition playerPosition;
+		private final MazeCanvas mazeCanvas;
+
+		public PlayerPositionListener(PlayerPosition player, MazeCanvas mazeCanvas) {
+			playerPosition = player;
+			this.mazeCanvas = mazeCanvas;
+			new Thread(this::runServer).start();
+		}
+
+		private void runServer() {
+			try {
+				ServerSocket serverSocket = new ServerSocket(PORT);
+				while(true) {
+					Socket s = serverSocket.accept();
+					BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+					String line;
+					while ((line = in.readLine()) != null) {
+						String[] tokens = line.split(" ");
+						if (tokens[0].equals("pos")) {
+							playerPosition.setX(Integer.parseInt(tokens[1]));
+							playerPosition.setY(Integer.parseInt(tokens[2]));
+							playerPosition.setActive(true);
+							mazeCanvas.repaint();
+						}
+						if (tokens[0].equals("seed")) {
+							long seed = Long.parseLong(tokens[1]);
+							mazeCanvas.setSeed(seed);
+							seedTextField.setText(seed + "");
+							mazeCanvas.regenMaze();
+						}
+					}
+					playerPosition.setActive(false);
+					mazeCanvas.repaint();
+					in.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

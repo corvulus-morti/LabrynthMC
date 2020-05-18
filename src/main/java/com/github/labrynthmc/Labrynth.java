@@ -1,6 +1,7 @@
 package com.github.labrynthmc;
 
 import com.github.labrynthmc.mazegen.Grid;
+import com.github.labrynthmc.util.MazeDrawUpdateHandler;
 import com.github.labrynthmc.world.FeatureInit;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
@@ -25,11 +26,19 @@ public final class Labrynth {
 
 	public static final String MODID = "labrynthmc";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
+	public static final MazeDrawUpdateHandler MAZE_DRAW_UPDATE_HANDLER;
 	/** Set this to true when you want debugging logs */
 	public static final boolean DEBUG = true;
 
 	public static Grid labrynth;
 	public static final int MAX_PATHS = 500;
+
+	static {
+		if (DEBUG) {
+			MAZE_DRAW_UPDATE_HANDLER = MazeDrawUpdateHandler.getInstance();
+		}
+	}
+
 
 	public Labrynth() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -57,6 +66,7 @@ public final class Labrynth {
 		DimensionType dimType = world.getDimension().getType();
 		if (!world.isRemote()) {
 			if (DEBUG) {
+				MAZE_DRAW_UPDATE_HANDLER.updateWorldSeed(iWorld.getSeed());
 				LOGGER.log(Level.INFO, "Dimension ID = " + dimType.getId());
 			}
 			labrynth = Grid.genMaze(world.getSeed(), MAX_PATHS);
