@@ -5,9 +5,12 @@ import com.github.labrynthmc.mazegen.Cell;
 import com.github.labrynthmc.mazegen.Coords;
 import com.github.labrynthmc.mazegen.Grid;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
@@ -20,6 +23,9 @@ public class MazeDraw extends JFrame {
 	public static void main(String[] args) {
 		new MazeDraw();
 	}
+
+	/** Whether  an image of the maze should be saved on generation */
+	private static boolean SAVE_IMAGE = false;
 
 	private MazeCanvas mazeCanvas;
 	private PlayerPosition playerPosition = new PlayerPosition();
@@ -126,8 +132,14 @@ public class MazeDraw extends JFrame {
 		}
 
 		@Override
-		public void paint(Graphics g) {
-			super.paint(g);
+		public void paint(Graphics g2) {
+			super.paint(g2);
+			Graphics g = g2;
+			BufferedImage bi = null;
+			if (SAVE_IMAGE) {
+				bi = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+				g = bi.createGraphics();
+			}
 			g.setColor(Color.BLACK);
 			for (Coords coords : grid.getKeys()) {
 				drawCell(g, coords);
@@ -143,14 +155,28 @@ public class MazeDraw extends JFrame {
 				g.setColor(Color.BLUE);
 				g.fillOval(playerX - 5, playerY - 5, 10, 10);
 			}
+			if (SAVE_IMAGE) {
+				try {
+					ImageIO.write(bi, "PNG", new File("maze_" + seed + "_" + maxPaths + ".png"));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			g2.drawImage(bi, 0, 0, null);
 		}
 
 		private void drawCell(Graphics g, Coords coords) {
 			Cell c = grid.getCell(coords);
 			Point p = coordToPoint(coords);
+
 			if (grid.isInSolution(coords)) {
 				Color color = g.getColor();
 				g.setColor(Color.YELLOW);
+				g.fillRect(p.x, p.y, 10, 10);
+				g.setColor(color);
+			} else {
+				Color color = g.getColor();
+				g.setColor(Color.WHITE);
 				g.fillRect(p.x, p.y, 10, 10);
 				g.setColor(color);
 			}
