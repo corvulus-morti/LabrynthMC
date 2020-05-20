@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 import static com.github.labrynthmc.util.MazeDrawUpdateHandler.PORT;
 
@@ -281,9 +281,19 @@ public class MazeDraw extends JFrame {
 		long seed;
 		int maxPaths;
 
+		private double scale = 1;
+
 		public MazeCanvas(long seed, int maxPaths) {
 			this.seed = seed;
 			this.maxPaths = maxPaths;
+			super.addMouseWheelListener((e) -> {
+				if (e.getWheelRotation() < 0) {
+					scale *= 1.1;
+				} else if (e.getWheelRotation() > 0) {
+					scale /= 1.1;
+				}
+				repaint();
+			});
 			regenMaze();
 		}
 
@@ -310,12 +320,13 @@ public class MazeDraw extends JFrame {
 		@Override
 		public void paint(Graphics g2) {
 			super.paint(g2);
-			Graphics g = g2;
+			Graphics2D g = (Graphics2D) g2;
 			BufferedImage bi = null;
 			if (SAVE_IMAGE) {
 				bi = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
 				g = bi.createGraphics();
 			}
+			g.scale(scale, scale);
 			g.setColor(Color.BLACK);
 			for (Coords coords : grid.getKeys()) {
 				drawCell(g, coords);
@@ -338,7 +349,10 @@ public class MazeDraw extends JFrame {
 					e.printStackTrace();
 				}
 			}
-			g2.drawImage(bi, 0, 0, null);
+//			AffineTransform at = new AffineTransform();
+//			at.scale(0.1,0.1);
+//			g.transform(at);
+			g.drawImage(bi, 0, 0, null);
 		}
 
 		private void drawCell(Graphics g, Coords coords) {
