@@ -42,6 +42,10 @@ public class Grid {
 		return grid.keySet();
 	}
 
+	public List<Coords> getSolution() {
+		return solution;
+	}
+
 	public int getMinX() {
 		return Dx[0];
 	}

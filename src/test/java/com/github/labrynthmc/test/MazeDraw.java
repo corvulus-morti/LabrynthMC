@@ -15,7 +15,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
 
 import static com.github.labrynthmc.util.MazeDrawUpdateHandler.PORT;
 
@@ -30,6 +31,8 @@ public class MazeDraw extends JFrame {
 	private MazeCanvas mazeCanvas;
 	private PlayerPosition playerPosition = new PlayerPosition();
 	private JTextField seedTextField;
+
+	private JTextPane mazeDetails;
 
 	private MazeDraw() {
 
@@ -53,14 +56,21 @@ public class MazeDraw extends JFrame {
 			mazeCanvas.regenMaze();
 		});
 
-		BorderLayout borderLayout = new BorderLayout();
-		mazePanel.setLayout(borderLayout);
+		mazePanel.setLayout(new BorderLayout());
 
 		panel.add(seedTextField);
 		panel.add(paths);
 		panel.add(drawButton);
 
-		mazePanel.add(panel, BorderLayout.NORTH);
+		JPanel headerPanel = new JPanel();
+		headerPanel.setLayout(new BorderLayout());
+		headerPanel.add(panel, BorderLayout.NORTH);
+
+		mazeDetails = new JTextPane();
+		mazeDetails.setText("Hello there");
+		headerPanel.add(mazeDetails, BorderLayout.SOUTH);
+
+		mazePanel.add(headerPanel, BorderLayout.NORTH);
 		mazeCanvas = new MazeCanvas(Long.parseLong(seedTextField.getText()), Integer.parseInt(paths.getText()));
 		JScrollPane scrollPane = new JScrollPane(mazeCanvas);
 		mazePanel.add(scrollPane, BorderLayout.CENTER);
@@ -74,6 +84,170 @@ public class MazeDraw extends JFrame {
 		setSize(getWidth(), 750);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+	}
+
+	void updateMazeDetails(int numCells, int solutionSize, int solutionLength) {
+		int secondsToSolveWhileRunning = (int) (solutionLength / 5.612);
+		int minutesToSolveWhileRunning = secondsToSolveWhileRunning / 60 % 60;
+		int hoursToSolveWhileRunning = secondsToSolveWhileRunning / 3600;
+		secondsToSolveWhileRunning %= 60;
+		mazeDetails.setText("Number cells: " + numCells + "; Number cells in solution: " + solutionSize
+				+ "; Estimated solution length: " + solutionLength + " blocks; Esimated time to solve while sprinting: "
+				+ String.format("%02d:%02d:%02d", hoursToSolveWhileRunning, minutesToSolveWhileRunning, secondsToSolveWhileRunning));
+	}
+
+	private static final double INNER_CORNER_DIST = 2 * Math.sqrt(3.5 * 3.5 + 0.5 * 0.5); // 0->1 with walking around the corner post
+	private static final double CORRESPONDING_CORNER_DIST = Math.sqrt(11 * 11 + 4 * 4); // 0 -> 2
+	private static final double OUTER_CORNER_DIST = Math.sqrt(11 * 11 * 2); // 0 -> 3
+	private static final double CROSS_ACROSS_DIST = Math.sqrt(15 * 15 + 5 * 5); // 0 -> 4
+	private static final double ACROSS_DIST = 15; // 0 -> 5
+	private static final double ENTRANCE_TO_SIDE_DIST = Math.sqrt(7.5 * 7.5 + 4 * 4); // 0.5 -> 2
+	private static final double ENTRANCE_TO_ACROSS = Math.sqrt(15 * 15 + 3.5 * 3.5); // 0.5 -> 4
+	private static final double CENTER_TO_NODE = Math.sqrt(7.5 * 7.5 + 3.5 * 3.5); // Center -> Any
+	/**
+	 * Each cell has the nodes laid out as below. We can ignore adding nodes on unopened sides.
+	 *
+	 * Corners (e.g 0 <-> 7) have a distance of about 2 * sqrt(3.5^2 + 0.5^2) (simulates going around the corner).
+	 *
+	 *   0 1
+	 * 7     2
+	 * 6     3
+	 *   5 4
+	 */
+	double estimateSolutionPathLength(Grid grid) {
+		List<Coords> solution = grid.getSolution();
+
+		Coords prevCoords = solution.get(0);
+		Cell prevCell = grid.getCell(prevCoords);
+		Node[] nodes = new Node[8];
+
+		int entranceSide = 0;
+		for (int i = 0; i < 4; i++) {
+			if (prevCell.getOpenSides()[i] == 1) {
+				nodes[2 * i] = new Node(prevCoords, 2 * i);
+				nodes[2 * i + 1] = new Node(prevCoords, 2 * i + 1);
+				if (grid.getCell(prevCoords.add(Grid.MOVE[i])) == null) {
+					entranceSide = i;
+				}
+			}
+		}
+		connectCellNodes(nodes);
+
+		Node entranceNode = new Node(prevCoords, 8);
+		connectNodes(entranceNode, nodes[(2 * entranceSide + 2) % 8], ENTRANCE_TO_SIDE_DIST);
+		connectNodes(entranceNode, nodes[(2 * entranceSide + 7) % 8], ENTRANCE_TO_SIDE_DIST);
+		connectNodes(entranceNode, nodes[(2 * entranceSide + 4) % 8], ENTRANCE_TO_ACROSS);
+		connectNodes(entranceNode, nodes[(2 * entranceSide + 5) % 8], ENTRANCE_TO_ACROSS);
+
+		Node[] prevNodes = nodes;
+
+		for (int s = 1; s < solution.size(); s++) {
+			nodes = new Node[8];
+			Coords coords = solution.get(s);
+			Cell cell = grid.getCell(coords);
+			for (int i = 0; i < 4; i++) {
+				if (cell.getOpenSides()[i] == 1) {
+					nodes[2 * i] = new Node(coords, 2 * i);
+					nodes[2 * i + 1] = new Node(coords, 2 * i + 1);
+				}
+			}
+			connectCellNodes(nodes);
+			connectToPreviousNodes(coords, prevCoords, nodes, prevNodes);
+
+			prevNodes = nodes;
+			prevCoords = coords;
+		}
+
+		Node centerNode = new Node();
+		for (int i = 0; i < 8; i++) {
+			connectNodes(centerNode, prevNodes[i], CENTER_TO_NODE);
+		}
+
+		//Dijkstra to find the shortest distance for entrance to center
+		PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingDouble(o -> o.val));
+		entranceNode.val = 0;
+		queue.add(entranceNode);
+
+		while (!queue.isEmpty()) {
+			Node n = queue.poll();
+			if (n.visited) {
+				continue;
+			}
+			if (n.equals(centerNode)) {
+				return n.val;
+			}
+			n.visited = true;
+			int numNeighbors = n.neighborNodes.size();
+			for (int i = 0; i < numNeighbors; i++) {
+				Node neighborNode = n.neighborNodes.get(i);
+				double neighborDistance = n.distances.get(i);
+				double newDist = n.val + neighborDistance;
+				if (newDist < neighborNode.val) {
+					neighborNode.val = newDist;
+					queue.add(neighborNode);
+				}
+			}
+		}
+		return 0;
+	}
+
+	private void connectToPreviousNodes(Coords coords, Coords prevCoords, Node[] nodes, Node[] prevNodes) {
+		for (int i = 0; i < 4; i++) {
+			if (coords.add(Grid.MOVE[i]).equals(prevCoords)) {
+				connectNodes(nodes[2 * i], prevNodes[(2 * i + 5) % 8], 1);
+				connectNodes(nodes[2 * i + 1], prevNodes[(2 * i + 4) % 8], 1);
+				return;
+			}
+		}
+	}
+
+	private void connectCellNodes(Node[] nodes) {
+		for (int i = 0; i < 8; i += 2) {
+			connectNodes(nodes[i + 1], nodes[(i + 2) % 8], INNER_CORNER_DIST);
+			connectNodes(nodes[i + 1], nodes[(i + 3) % 8], CORRESPONDING_CORNER_DIST);
+			connectNodes(nodes[i], nodes[(i + 2) % 8], CORRESPONDING_CORNER_DIST);
+			connectNodes(nodes[i], nodes[(i + 3) % 8], OUTER_CORNER_DIST);
+			connectNodes(nodes[i >> 1], nodes[(i >> 1) + 4], CROSS_ACROSS_DIST);
+			connectNodes(nodes[i], nodes[(i + 5) % 8], ACROSS_DIST);
+		}
+	}
+
+	void connectNodes(Node a, Node b, double dist) {
+		if (a == null || b == null) {
+			return;
+		}
+		a.neighborNodes.add(b);
+		a.distances.add(dist);
+		b.neighborNodes.add(a);
+		b.distances.add(dist);
+	}
+
+	private static class Node {
+		List<Node> neighborNodes = new ArrayList<>();
+		List<Double> distances = new ArrayList<>();
+		double val = Double.MAX_VALUE;
+		boolean visited = false;
+		Coords coords;
+		int i;
+
+		public Node() {
+
+		}
+
+		public Node(Coords c, int i) {
+			coords = c;
+			this.i = i;
+		}
+
+		@Override
+		public String toString() {
+			return "Node{" +
+					", coords=" + coords +
+					", i=" + i +
+					", val=" + val +
+					", visited=" + visited +
+					'}';
+		}
 	}
 
 	private class MazeCanvas extends JPanel {
@@ -115,6 +289,8 @@ public class MazeDraw extends JFrame {
 
 		public void regenMaze() {
 			grid = Grid.genMaze(seed, maxPaths);
+
+			updateMazeDetails(grid.getKeys().size(), grid.getSolution().size(), (int) estimateSolutionPathLength(grid));
 
 			leftx = Integer.MAX_VALUE;
 			rightx = Integer.MIN_VALUE;
