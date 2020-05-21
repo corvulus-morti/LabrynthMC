@@ -1,9 +1,12 @@
 package com.github.labrynthmc;
 
 
+import com.github.labrynthmc.mazegen.Coords;
+import com.github.labrynthmc.mazegen.Grid;
 import com.github.labrynthmc.world.FeatureInit;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraftforge.event.RegistryEvent;
@@ -53,8 +56,13 @@ public class ModEventSubscriber {
 	}
 
 	@SubscribeEvent
-	public void asdfadfsfdas(EntityTravelToDimensionEvent e) {
-		e.getEntity().setPositionAndRotation(0, 50, 0, 0, 0);
+	public void onSpawnNewNetherPortal(EntityTravelToDimensionEvent e) {
+		Labrynth.LOGGER.log(Level.INFO,""+e.getDimension().getId());
+		if (e.getDimension().getId() == -1) {
+			Coords chunk = new Coords((int) (e.getEntity().getPosX()/16), (int) (e.getEntity().getPosZ()/16));
+			if (Labrynth.labrynth.getCell(chunk) != null && e.getEntity().getPosY() <= 43)
+				e.getEntity().setPosition(e.getEntity().getPosX(), 64, e.getEntity().getPosZ());
+		}
 	}
 
 
