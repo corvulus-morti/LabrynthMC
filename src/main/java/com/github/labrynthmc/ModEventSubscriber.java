@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -50,5 +51,11 @@ public class ModEventSubscriber {
 		Entity player = e.getEntity();
 		Labrynth.MAZE_DRAW_UPDATE_HANDLER.updatePlayerPosition(player.getPosition());
 	}
+
+	@SubscribeEvent
+	public void asdfadfsfdas(EntityTravelToDimensionEvent e) {
+		e.getEntity().setPositionAndRotation(0, 50, 0, 0, 0);
+	}
+
 
 }
