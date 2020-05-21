@@ -312,7 +312,6 @@ public class MazeDraw extends JFrame {
 				topy = Math.min(topy, c.getY());
 				bottomy = Math.max(bottomy, c.getY());
 			}
-			setPreferredSize(new Dimension((rightx - leftx) * 10 + 40, (bottomy - topy) * 10 + 40));
 			setVisible(true);
 			repaint();
 		}
@@ -321,6 +320,7 @@ public class MazeDraw extends JFrame {
 		public void paint(Graphics g2) {
 			super.paint(g2);
 			Graphics2D g = (Graphics2D) g2;
+			setPreferredSize(new Dimension((int) (((rightx - leftx) * 10 + 40) * scale), (int) (((bottomy - topy) * 10 + 40) * scale)));
 			BufferedImage bi = null;
 			if (SAVE_IMAGE) {
 				bi = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -345,14 +345,11 @@ public class MazeDraw extends JFrame {
 			if (SAVE_IMAGE) {
 				try {
 					ImageIO.write(bi, "PNG", new File("maze_" + seed + "_" + maxPaths + ".png"));
+					g2.drawImage(bi, 0, 0, null);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-//			AffineTransform at = new AffineTransform();
-//			at.scale(0.1,0.1);
-//			g.transform(at);
-			g.drawImage(bi, 0, 0, null);
 		}
 
 		private void drawCell(Graphics g, Coords coords) {
