@@ -345,14 +345,11 @@ public class MazeDraw extends JFrame {
 			if (SAVE_IMAGE) {
 				try {
 					ImageIO.write(bi, "PNG", new File("maze_" + seed + "_" + maxPaths + ".png"));
+					g2.drawImage(bi, 0, 0, null);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
-//			AffineTransform at = new AffineTransform();
-//			at.scale(0.1,0.1);
-//			g.transform(at);
-			g.drawImage(bi, 0, 0, null);
 		}
 
 		private void drawCell(Graphics g, Coords coords) {
