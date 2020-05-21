@@ -312,7 +312,6 @@ public class MazeDraw extends JFrame {
 				topy = Math.min(topy, c.getY());
 				bottomy = Math.max(bottomy, c.getY());
 			}
-			setPreferredSize(new Dimension((rightx - leftx) * 10 + 40, (bottomy - topy) * 10 + 40));
 			setVisible(true);
 			repaint();
 		}
@@ -321,6 +320,7 @@ public class MazeDraw extends JFrame {
 		public void paint(Graphics g2) {
 			super.paint(g2);
 			Graphics2D g = (Graphics2D) g2;
+			setPreferredSize(new Dimension((int) (((rightx - leftx) * 10 + 40) * scale), (int) (((bottomy - topy) * 10 + 40) * scale)));
 			BufferedImage bi = null;
 			if (SAVE_IMAGE) {
 				bi = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
