@@ -43,7 +43,7 @@ public class MazeDraw extends JFrame {
 		JTextField paths = new JTextField();
 		paths.setPreferredSize(new Dimension(50, 32));
 		paths.setToolTipText("Max paths");
-		paths.setText(Labrynth.MAX_PATHS + "");
+		paths.setText(Labrynth.MAZE_SIZES[Labrynth.mazeSize]+ "");
 
 		JPanel panel = new JPanel();
 		JPanel mazePanel = new JPanel();
