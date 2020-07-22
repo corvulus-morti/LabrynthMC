@@ -26,6 +26,7 @@ public class StructureLabrynthPieces {
 	public static final ResourceLocation ELL = new ResourceLocation(Labrynth.MODID + ":ell");
 	public static final ResourceLocation TEE = new ResourceLocation(Labrynth.MODID + ":tee");
 	public static final ResourceLocation DEAD_END = new ResourceLocation(Labrynth.MODID + ":dead");
+	public static final ResourceLocation ENTRANCE = new ResourceLocation(Labrynth.MODID + ":entrance");
 
 	public static void start(TemplateManager templateManager, ResourceLocation resourceLocation, BlockPos pos, Rotation rotation, List<StructurePiece> pieceList) {
 		pieceList.add(new StructureLabrynthPieces.Piece(templateManager, resourceLocation, pos, rotation));

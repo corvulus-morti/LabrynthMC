@@ -35,7 +35,7 @@ public class MazeDrawUpdateHandler {
 
 	public void updatePlayerPosition(BlockPos pos) {
 		if (lastPlayerPosition != null &&
-				pos.getX() == lastPlayerPosition.getX() && pos.getY() == lastPlayerPosition.getY()) {
+				pos.getX() == lastPlayerPosition.getX() && pos.getZ() == lastPlayerPosition.getZ()) {
 			return;
 		}
 

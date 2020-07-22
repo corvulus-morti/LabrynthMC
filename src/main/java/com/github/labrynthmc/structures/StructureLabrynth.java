@@ -89,6 +89,7 @@ public class StructureLabrynth extends Structure<NoFeatureConfig> {
 			BlockPos blockpos2 = new BlockPos(x, surfaceY, z);
 
 			Coords center = Labrynth.labrynth.getCenter();
+			Coords entrance = Labrynth.labrynth.getEntrance();
 			//LOGGER.log(Level.DEBUG, "Labrynth generated at " + center +".");
 
 			Coords pos = new Coords(chunkX, chunkZ);
@@ -152,6 +153,10 @@ public class StructureLabrynth extends Structure<NoFeatureConfig> {
 					break;
 			}
 			bp = new BlockPos(curX + xOffset, surfaceY, curZ + zOffset);
+
+			if (chunkX == entrance.getX() && chunkZ == entrance.getY())
+				cellType = StructureLabrynthPieces.ENTRANCE;
+
 			StructureLabrynthPieces.start(templateManagerIn, cellType, bp, Rotation.values()[r % 4], this.components);
 
 			this.recalculateStructureSize();

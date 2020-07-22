@@ -6,6 +6,7 @@ public class Cell {
 
 	private char type = '0';
 	private byte openSides[] = {0, 0, 0, 0};
+	private boolean isEntrance = false;
 
 	public Cell() {
 	}

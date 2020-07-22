@@ -262,15 +262,16 @@ public class Grid {
 		} else {
 			entrance = center;
 		}
-		List<Integer> sides = Arrays.asList(0,1,2,3);
-		Collections.shuffle(sides, r); // Add new sides in a random order
-		for (int side : sides) {
-			Cell c = getCell(entrance);
-			if (getCell(entrance.add(MOVE[side])) == null) {
-				c.setOpenSide(side, true);
-				break;
-			}
-		}
+
+//		List<Integer> sides = Arrays.asList(0,1,2,3);
+//		Collections.shuffle(sides, r); // Add new sides in a random order
+//		for (int side : sides) {
+//			Cell c = getCell(entrance);
+//			if (getCell(entrance.add(MOVE[side])) == null) {
+//				c.setOpenSide(side, true);
+//				break;
+//			}
+//		}
 
 		Coords c = entrance;
 		while(!c.equals(center)) {
