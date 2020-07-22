@@ -1,11 +1,13 @@
 package com.github.labrynthmc;
 
 import com.github.labrynthmc.mazegen.Grid;
+import com.github.labrynthmc.settings.MazeSizeMenuOption;
 import com.github.labrynthmc.util.MazeDrawUpdateHandler;
 import com.github.labrynthmc.world.FeatureInit;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.SmallEndIslandsBiome;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.GenerationStage;
 import net.minecraft.world.gen.feature.IFeatureConfig;
@@ -21,6 +23,10 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Scanner;
+
 @Mod(Labrynth.MODID)
 public final class Labrynth {
 
@@ -31,7 +37,12 @@ public final class Labrynth {
 	public static final boolean DEBUG = true;
 
 	public static Grid labrynth;
-	public static final int MAX_PATHS = 1500;
+	public static final int SMALL_MAZE = 300;
+	public static final int MEDIUM_MAZE = 1200;
+	public static final int LARGE_MAZE = 4800;
+	public static final int INSANE_MAZE = 40000;
+	public static int mazeSize = 0;
+	public static final int MAZE_SIZES[] = {SMALL_MAZE,MEDIUM_MAZE,LARGE_MAZE,INSANE_MAZE};
 
 	static {
 		if (DEBUG) {
@@ -69,7 +80,11 @@ public final class Labrynth {
 				MAZE_DRAW_UPDATE_HANDLER.updateWorldSeed(iWorld.getSeed());
 				LOGGER.log(Level.INFO, "Dimension ID = " + dimType.getId());
 			}
-			labrynth = Grid.genMaze(world.getSeed(), MAX_PATHS);
+			mazeSize = MazeSizeMenuOption.getWorldMazeSize(world);
+
+			MazeSizeMenuOption.addSettingToWorld(world);
+			labrynth = Grid.genMaze(world.getSeed(),MAZE_SIZES[mazeSize]);
+			LOGGER.info("Generating maze with " + MAZE_SIZES[mazeSize] + " paths.");
 
 		} else if (DEBUG) {
 			LOGGER.log(Level.INFO, "Not generating maze, world is remote");
