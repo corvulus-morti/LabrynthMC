@@ -7,6 +7,7 @@ import com.github.labrynthmc.world.FeatureInit;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.feature.Feature;
@@ -95,6 +96,8 @@ public class ModEventSubscriber {
 		if (e.getEntityLiving() == null || !(e.getEntityLiving() instanceof PlayerEntity)) {
 			return;
 		}
+		Entity player = e.getEntity();
+		MAZE_DRAW_UPDATE_HANDLER.updatePlayerPosition(player.getPosition(), player.getYaw(1.0F));
 	}
 
 	@SubscribeEvent

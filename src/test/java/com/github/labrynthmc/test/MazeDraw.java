@@ -337,7 +337,7 @@ public class MazeDraw extends JFrame {
 				int playerY = (playerPosition.getY() - grid.getMinY() * 16) * 10 / 16 + 10;
 				g.scale(2, 2);
 				g.translate(120, 120);
-				g.rotate(Math.PI - playerPosition.yaw * Math.PI / 180);
+				g.rotate(Math.PI - playerPosition.getYaw());
 				g.translate(0 - playerX, 0 - playerY);
 			} else {
 				setPreferredSize(new Dimension((int) (((rightx - leftx) * 10 + 40) * scale), (int) (((bottomy - topy) * 10 + 40) * scale)));
@@ -420,8 +420,10 @@ public class MazeDraw extends JFrame {
 	}
 
 	private class PlayerPosition {
+		private final int NUM_YAWS = 5;
+
 		private int x, y;
-		private float yaw;
+		private List<Float> yaws = new LinkedList<>();
 		private boolean isActive;
 
 		public int getX() {
@@ -449,11 +451,20 @@ public class MazeDraw extends JFrame {
 		}
 
 		public float getYaw() {
-			return yaw;
+			double x = 0;
+			double y = 0;
+			for (float yaw : yaws) {
+				x += Math.cos(yaw * Math.PI / 180);
+				y += Math.sin(yaw * Math.PI / 180);
+			}
+			return (float) Math.atan2(y, x);
 		}
 
 		public void setYaw(float yaw) {
-			this.yaw = yaw;
+			yaws.add(yaw);
+			if (yaws.size() > NUM_YAWS) {
+				yaws.remove(0);
+			}
 		}
 	}
 
