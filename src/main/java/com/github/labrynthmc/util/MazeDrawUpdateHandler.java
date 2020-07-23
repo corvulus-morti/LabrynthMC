@@ -59,6 +59,19 @@ public class MazeDrawUpdateHandler {
 
 	}
 
+	public void updateMaxPaths(int paths) {
+		if (s != null) {
+			try {
+				Labrynth.LOGGER.log(Level.INFO, "closing the connection");
+				s.close(); // close for now so that we can open a new one
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		executor.execute(() -> getPrintStream().println("maxPaths " + paths));
+
+	}
+
 	private PrintStream getPrintStream() {
 
 		if (s == null || s.isClosed() || s.isOutputShutdown()) {

@@ -31,6 +31,7 @@ public class MazeDraw extends JFrame {
 	private MazeCanvas mazeCanvas;
 	private PlayerPosition playerPosition = new PlayerPosition();
 	private JTextField seedTextField;
+	private JTextField pathsTextField;
 
 	private JTextPane mazeDetails;
 
@@ -40,10 +41,10 @@ public class MazeDraw extends JFrame {
 		seedTextField.setPreferredSize(new Dimension(500, 32));
 		seedTextField.setToolTipText("Seed");
 		seedTextField.setText(new Random().nextLong() + "");
-		JTextField paths = new JTextField();
-		paths.setPreferredSize(new Dimension(50, 32));
-		paths.setToolTipText("Max paths");
-		paths.setText(Labrynth.MAZE_SIZES[Labrynth.mazeSize]+ "");
+		pathsTextField = new JTextField();
+		pathsTextField.setPreferredSize(new Dimension(50, 32));
+		pathsTextField.setToolTipText("Max paths");
+		pathsTextField.setText(Labrynth.MAZE_SIZES[Labrynth.mazeSize]+ "");
 
 		JPanel panel = new JPanel();
 		JPanel mazePanel = new JPanel();
@@ -52,14 +53,14 @@ public class MazeDraw extends JFrame {
 		drawButton.setText("Draw");
 		drawButton.addActionListener(e -> {
 			mazeCanvas.setSeed(Long.parseLong(seedTextField.getText()));
-			mazeCanvas.setMaxPaths(Integer.parseInt(paths.getText()));
+			mazeCanvas.setMaxPaths(Integer.parseInt(pathsTextField.getText()));
 			mazeCanvas.regenMaze();
 		});
 
 		mazePanel.setLayout(new BorderLayout());
 
 		panel.add(seedTextField);
-		panel.add(paths);
+		panel.add(pathsTextField);
 		panel.add(drawButton);
 
 		JPanel headerPanel = new JPanel();
@@ -71,7 +72,7 @@ public class MazeDraw extends JFrame {
 		headerPanel.add(mazeDetails, BorderLayout.SOUTH);
 
 		mazePanel.add(headerPanel, BorderLayout.NORTH);
-		mazeCanvas = new MazeCanvas(Long.parseLong(seedTextField.getText()), Integer.parseInt(paths.getText()));
+		mazeCanvas = new MazeCanvas(Long.parseLong(seedTextField.getText()), Integer.parseInt(pathsTextField.getText()));
 		JScrollPane scrollPane = new JScrollPane(mazeCanvas);
 		mazePanel.add(scrollPane, BorderLayout.CENTER);
 
@@ -451,6 +452,12 @@ public class MazeDraw extends JFrame {
 							long seed = Long.parseLong(tokens[1]);
 							mazeCanvas.setSeed(seed);
 							seedTextField.setText(seed + "");
+							mazeCanvas.regenMaze();
+						}
+						if (tokens[0].equals("maxPaths")) {
+							int maxPaths = Integer.parseInt(tokens[1]);
+							mazeCanvas.setMaxPaths(maxPaths);
+							pathsTextField.setText(maxPaths + "");
 							mazeCanvas.regenMaze();
 						}
 					}

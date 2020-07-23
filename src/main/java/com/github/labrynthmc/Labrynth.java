@@ -78,6 +78,7 @@ public final class Labrynth {
 		if (!world.isRemote()) {
 			if (DEBUG) {
 				MAZE_DRAW_UPDATE_HANDLER.updateWorldSeed(iWorld.getSeed());
+				MAZE_DRAW_UPDATE_HANDLER.updateMaxPaths(MAZE_SIZES[mazeSize]);
 				LOGGER.log(Level.INFO, "Dimension ID = " + dimType.getId());
 			}
 			mazeSize = MazeSizeMenuOption.getWorldMazeSize(world);
