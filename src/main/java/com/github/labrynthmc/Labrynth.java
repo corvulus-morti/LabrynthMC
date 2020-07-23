@@ -32,7 +32,7 @@ public final class Labrynth {
 
 	public static final String MODID = "labrynthmc";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
-	public static final MazeDrawUpdateHandler MAZE_DRAW_UPDATE_HANDLER;
+	public static MazeDrawUpdateHandler MAZE_DRAW_UPDATE_HANDLER = null;
 	/** Set this to true when you want debugging logs */
 	public static final boolean DEBUG = true;
 
@@ -78,6 +78,7 @@ public final class Labrynth {
 		if (!world.isRemote()) {
 			if (DEBUG) {
 				MAZE_DRAW_UPDATE_HANDLER.updateWorldSeed(iWorld.getSeed());
+				MAZE_DRAW_UPDATE_HANDLER.updateMaxPaths(MAZE_SIZES[mazeSize]);
 				LOGGER.log(Level.INFO, "Dimension ID = " + dimType.getId());
 			}
 			mazeSize = MazeSizeMenuOption.getWorldMazeSize(world);

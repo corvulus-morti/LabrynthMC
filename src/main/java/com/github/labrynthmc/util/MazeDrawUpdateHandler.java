@@ -7,8 +7,7 @@ import org.apache.logging.log4j.Level;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class MazeDrawUpdateHandler {
 
@@ -16,14 +15,16 @@ public class MazeDrawUpdateHandler {
 
 	private static MazeDrawUpdateHandler instance;
 
-	Executor executor;
+	ThreadPoolExecutor executor;
 
 	BlockPos lastPlayerPosition;
+	float lastYaw = 0.0f;
 	Socket s;
 	PrintStream out;
 
 	private MazeDrawUpdateHandler() {
-		executor = Executors.newSingleThreadExecutor();
+		executor = new ThreadPoolExecutor(1, 1, 0,TimeUnit.MILLISECONDS,
+				new LinkedBlockingDeque<>());
 	}
 
 	public static MazeDrawUpdateHandler getInstance() {
@@ -33,17 +34,21 @@ public class MazeDrawUpdateHandler {
 		return instance;
 	}
 
-	public void updatePlayerPosition(BlockPos pos) {
+	public void updatePlayerPosition(BlockPos pos, float yaw) {
 		if (lastPlayerPosition != null &&
-				pos.getX() == lastPlayerPosition.getX() && pos.getZ() == lastPlayerPosition.getZ()) {
+				pos.getX() == lastPlayerPosition.getX() && pos.getZ() == lastPlayerPosition.getZ() && yaw == lastYaw) {
 			return;
 		}
 
-		Labrynth.LOGGER.log(Level.INFO, "updating the players location" + pos.getX() + ", " + pos.getZ());
+		if (Labrynth.DEBUG) {
+			Labrynth.LOGGER.log(Level.INFO, "updating the players location" + pos.getX() + ", " + pos.getZ());
+		}
 
 		lastPlayerPosition = pos;
+		lastYaw = yaw;
 
-		executor.execute(() -> getPrintStream().println("pos " + pos.getX() + " " + pos.getZ()));
+		executor.getQueue().poll();
+		executor.execute(() -> getPrintStream().println("pos " + pos.getX() + " " + pos.getZ() + " " + yaw));
 	}
 
 	public void updateWorldSeed(long seed) {
@@ -56,6 +61,19 @@ public class MazeDrawUpdateHandler {
 			}
 		}
 		executor.execute(() -> getPrintStream().println("seed " + seed));
+
+	}
+
+	public void updateMaxPaths(int paths) {
+		if (s != null) {
+			try {
+				Labrynth.LOGGER.log(Level.INFO, "closing the connection");
+				s.close(); // close for now so that we can open a new one
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		executor.execute(() -> getPrintStream().println("maxPaths " + paths));
 
 	}
 
