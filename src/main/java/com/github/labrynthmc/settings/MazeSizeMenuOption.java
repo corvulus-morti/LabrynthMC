@@ -4,6 +4,7 @@ import com.github.labrynthmc.Labrynth;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.world.GameRules;
@@ -44,30 +45,41 @@ public class MazeSizeMenuOption {
     {
         int size;
 
-        try {
-            File saveData = Objects.requireNonNull(world.getServer().getDataDirectory().listFiles())[0];
-            Scanner readData = new Scanner(saveData);
-            size = readData.nextInt();
-        } catch (IOException e) {
-            LOGGER.info("Maze config not found. Creating config.");
+        String dir = Minecraft.getInstance().gameDir.getAbsolutePath();
+        String save = Minecraft.getInstance().getIntegratedServer().getFolderName();
+        File saveData = new File(dir+"/saves/"+save+"/","mazeSize.dat");
+        if (!saveData.exists()) {
+            saveMazeSize(saveData, mazeSize);
             size = mazeSize;
-            MazeSizeMenuOption.addSettingToWorld(world);
+        }
+        else {
+            size = loadMazeSize(saveData);
         }
 
         return size;
     }
 
-    public static void addSettingToWorld(World world)
-    {
-        File f = world.getServer().getDataDirectory();
-        File saveData = new File(f,"mazeSize.dat");
+    public static void saveMazeSize(File file, int mazeSize) {
         try {
-            PrintStream printStream = new PrintStream(new BufferedOutputStream(new FileOutputStream(saveData)));
-            printStream.println(Labrynth.mazeSize);
-            printStream.close();
+            BufferedWriter saveFile = new BufferedWriter(new FileWriter(file));
+            LOGGER.error(mazeSize);
+            saveFile.write(mazeSize);
+            saveFile.close();
         } catch (IOException e) {
             Labrynth.LOGGER.error("FILE NOT FOUND");
         }
+    }
+    public static int loadMazeSize(File file) {
+        int size = 0;
+        try {
+            BufferedReader saveFile = new BufferedReader(new FileReader(file));
+            size = Integer.parseInt(saveFile.readLine());
+            saveFile.close();
+        } catch (IOException e) {
+            Labrynth.LOGGER.error("FILE NOT FOUND");
+        }
+
+        return size;
     }
 
 
