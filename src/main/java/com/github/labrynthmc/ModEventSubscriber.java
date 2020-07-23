@@ -2,17 +2,12 @@ package com.github.labrynthmc;
 
 
 import com.github.labrynthmc.mazegen.Coords;
-import com.github.labrynthmc.mazegen.Grid;
 import com.github.labrynthmc.settings.MazeSizeMenuOption;
 import com.github.labrynthmc.world.FeatureInit;
 import net.minecraft.client.gui.IGuiEventListener;
-import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.Widget;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -23,7 +18,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
@@ -95,14 +89,12 @@ public class ModEventSubscriber {
 
 	@SubscribeEvent
 	public void onPlayerMove(LivingEvent.LivingUpdateEvent e) {
-		if(!DEBUG) {
+		if (!DEBUG) {
 			return;
 		}
 		if (e.getEntityLiving() == null || !(e.getEntityLiving() instanceof PlayerEntity)) {
 			return;
 		}
-		Entity player = e.getEntity();
-		MAZE_DRAW_UPDATE_HANDLER.updatePlayerPosition(player.getPosition());
 	}
 
 	@SubscribeEvent
@@ -114,6 +106,5 @@ public class ModEventSubscriber {
 				e.getEntity().setPosition(e.getEntity().getPosX(), 64, e.getEntity().getPosZ());
 		}
 	}
-
 
 }
