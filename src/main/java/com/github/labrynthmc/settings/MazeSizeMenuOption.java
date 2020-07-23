@@ -47,7 +47,7 @@ public class MazeSizeMenuOption {
 
         String dir = Minecraft.getInstance().gameDir.getAbsolutePath();
         String save = Minecraft.getInstance().getIntegratedServer().getFolderName();
-        File saveData = new File(dir+"/saves/"+save+"/","mazeSize.dat");
+        File saveData = new File(dir+"/saves/"+save+"/","mazeSize.txt");
         if (!saveData.exists()) {
             saveMazeSize(saveData, mazeSize);
             size = mazeSize;
@@ -61,10 +61,11 @@ public class MazeSizeMenuOption {
 
     public static void saveMazeSize(File file, int mazeSize) {
         try {
-            BufferedWriter saveFile = new BufferedWriter(new FileWriter(file));
+            file.createNewFile();
+            BufferedWriter bw = new BufferedWriter(new FileWriter(file));
             LOGGER.error(mazeSize);
-            saveFile.write(mazeSize);
-            saveFile.close();
+            bw.write(""+mazeSize);
+            bw.close();
         } catch (IOException e) {
             Labrynth.LOGGER.error("FILE NOT FOUND");
         }
@@ -72,9 +73,9 @@ public class MazeSizeMenuOption {
     public static int loadMazeSize(File file) {
         int size = 0;
         try {
-            BufferedReader saveFile = new BufferedReader(new FileReader(file));
-            size = Integer.parseInt(saveFile.readLine());
-            saveFile.close();
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            size = Integer.parseInt(br.readLine());
+            br.close();
         } catch (IOException e) {
             Labrynth.LOGGER.error("FILE NOT FOUND");
         }
