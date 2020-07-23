@@ -42,7 +42,20 @@ public class ModEventSubscriber {
 		if (screen.getTitle().getFormattedText().equals("Create New World")) {
 
 			MazeSizeMenuOption.mazeSizeButton.visible = false;
-
+			switch (mazeSize){
+				case 0:
+					MazeSizeMenuOption.mazeSizeButton.setMessage("Maze Size: Small");
+					break;
+				case 1:
+					MazeSizeMenuOption.mazeSizeButton.setMessage("Maze Size: Medium");
+					break;
+				case 2:
+					MazeSizeMenuOption.mazeSizeButton.setMessage("Maze Size: Large");
+					break;
+				case 3:
+					MazeSizeMenuOption.mazeSizeButton.setMessage("Maze Size: Insane");
+					break;
+			}
 			List<? extends IGuiEventListener> children = screen.children();
 			for (int n = 0; n < children.size(); n++) {
 				if (children.get(n) instanceof Button) {
