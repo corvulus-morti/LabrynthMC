@@ -44,37 +44,40 @@ public class ModEventSubscriber {
 	public void addOptionToWorldMenu(GuiScreenEvent.InitGuiEvent.Post event)
 	{
 		Screen screen = event.getGui();
-		if (screen.getTitle().getFormattedText().equals("Create New World"))
-			if (!MazeSizeMenuOption.buttonAdded) {
-				//MazeSizeMenuOption.buttonAdded = true;
+		if (screen.getTitle().getFormattedText().equals("Create New World")) {
 
-				MazeSizeMenuOption.mazeSizeButton.visible = false;
+			MazeSizeMenuOption.mazeSizeButton.visible = false;
 
-				int n;
-				for (n = 0; n < screen.children().toArray().length; n++)
-					if (screen.children().toArray()[n] instanceof Button)
-						if (((Button) screen.children().toArray()[n]).getMessage().equals("More World Options...")) break;
-
-				Button childButton = ((Button) screen.children().toArray()[n]);
-
-				Button newMoreOptions = new Button(
-						childButton.x,
-						childButton.y+30,
-						childButton.getWidth(),
-						childButton.getHeight(),
-						childButton.getMessage(),
-						(b)->{
-							childButton.onPress();
-							MazeSizeMenuOption.mazeSizeButton.visible = !MazeSizeMenuOption.mazeSizeButton.visible;
-						});
-				MazeSizeMenuOption.mazeSizeButton.x = childButton.x;
-				MazeSizeMenuOption.mazeSizeButton.y = childButton.y;
-				MazeSizeMenuOption.mazeSizeButton.setWidth(childButton.getWidth());
-				MazeSizeMenuOption.mazeSizeButton.setHeight(childButton.getHeight());
-				event.addWidget(newMoreOptions);
-				event.addWidget(MazeSizeMenuOption.mazeSizeButton);
-				event.removeWidget(childButton);
+			List<? extends IGuiEventListener> children = screen.children();
+			for (int n = 0; n < children.size(); n++) {
+				if (children.get(n) instanceof Button) {
+					Button childButton = ((Button) children.get(n));
+						if (childButton.getMessage().equals("More World Options...") ||
+								childButton.getMessage().equals("Done")) {
+							MazeSizeMenuOption.mazeSizeButton.visible = childButton.getMessage().equals("Done");
+							Button newMoreOptions = new Button(
+									childButton.x,
+									childButton.y+30,
+									childButton.getWidth(),
+									childButton.getHeight(),
+									childButton.getMessage(),
+									(b)->{
+										childButton.onPress();
+										MazeSizeMenuOption.mazeSizeButton.visible = !MazeSizeMenuOption.mazeSizeButton.visible;
+										b.setMessage(childButton.getMessage());
+									});
+							MazeSizeMenuOption.mazeSizeButton.x = childButton.x;
+							MazeSizeMenuOption.mazeSizeButton.y = childButton.y;
+							MazeSizeMenuOption.mazeSizeButton.setWidth(childButton.getWidth());
+							MazeSizeMenuOption.mazeSizeButton.setHeight(childButton.getHeight());
+							event.addWidget(newMoreOptions);
+							event.addWidget(MazeSizeMenuOption.mazeSizeButton);
+							event.removeWidget(childButton);
+							break;
+						}
+				}
 			}
+		}
 
 	}
 
