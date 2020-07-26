@@ -2,6 +2,7 @@ package com.github.labrynthmc.structures;
 
 import com.github.labrynthmc.Labrynth;
 import com.github.labrynthmc.world.FeatureInit;
+import net.minecraft.block.Block;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.ResourceLocation;
@@ -17,8 +18,11 @@ import net.minecraft.world.gen.feature.template.PlacementSettings;
 import net.minecraft.world.gen.feature.template.Template;
 import net.minecraft.world.gen.feature.template.TemplateManager;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Random;
+
+import static com.github.labrynthmc.Labrynth.LOGGER;
 
 public class StructureLabrynthPieces {
 	public static final ResourceLocation FOUR_WAY = new ResourceLocation(Labrynth.MODID + ":four_way");
@@ -56,6 +60,22 @@ public class StructureLabrynthPieces {
 
 
 			Template template = templateManager.getTemplateDefaulted(this.templateResource);
+			try {
+				Field ListOfListOfBlocks = Template.class.getDeclaredField("blocks");
+				Field blockHardness = Block.class.getDeclaredField("blockHardness");
+				ListOfListOfBlocks.setAccessible(true);
+				blockHardness.setAccessible(true);
+				List<List<Template.BlockInfo>> listListBlocks =
+						(List<List<Template.BlockInfo>>) ListOfListOfBlocks.get(template);
+				for (List<Template.BlockInfo> blockInfos : listListBlocks) {
+					for (Template.BlockInfo blockInfo : blockInfos) {
+						Block block = blockInfo.state.getBlock();
+						blockHardness.set(block, -1.0f);
+					}
+				}
+			} catch (NoSuchFieldException | IllegalAccessException e) {
+				LOGGER.error("Unable to make block unbreakable", e);
+			}
 			PlacementSettings placementSettings = (new PlacementSettings()).setRotation(this.rotation).setMirror(Mirror.NONE);
 			this.setup(template, this.templatePosition, placementSettings);
 		}
