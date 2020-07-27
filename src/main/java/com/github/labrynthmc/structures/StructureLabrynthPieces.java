@@ -2,7 +2,7 @@ package com.github.labrynthmc.structures;
 
 import com.github.labrynthmc.Labrynth;
 import com.github.labrynthmc.world.FeatureInit;
-import net.minecraft.block.Block;
+import net.minecraft.block.AirBlock;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.ResourceLocation;
@@ -57,20 +57,21 @@ public class StructureLabrynthPieces {
 		}
 
 		public void setupTemplate(TemplateManager templateManager) {
-
-
 			Template template = templateManager.getTemplateDefaulted(this.templateResource);
 			try {
 				Field ListOfListOfBlocks = Template.class.getDeclaredField("blocks");
-				Field blockHardness = Block.class.getDeclaredField("blockHardness");
 				ListOfListOfBlocks.setAccessible(true);
-				blockHardness.setAccessible(true);
 				List<List<Template.BlockInfo>> listListBlocks =
 						(List<List<Template.BlockInfo>>) ListOfListOfBlocks.get(template);
 				for (List<Template.BlockInfo> blockInfos : listListBlocks) {
 					for (Template.BlockInfo blockInfo : blockInfos) {
-						Block block = blockInfo.state.getBlock();
-						blockHardness.set(block, -1.0f);
+						if (blockInfo.state.getBlock() instanceof AirBlock) {
+							continue;
+						}
+						BlockPos pos = Template.transformedBlockPos((new PlacementSettings()).setRotation(this.rotation).setMirror(Mirror.NONE), blockInfo.pos);
+						LightBlockPos myBlockPos = new LightBlockPos(pos.getX() + templatePosition.getX(),pos.getY() + templatePosition.getY(),pos.getZ() + templatePosition.getZ());
+						UnbreakableBlocks.addUnbreakableBlock(myBlockPos);
+//						LOGGER.info("we have a block at " + myBlockPos.toString());
 					}
 				}
 			} catch (NoSuchFieldException | IllegalAccessException e) {
