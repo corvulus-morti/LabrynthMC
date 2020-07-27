@@ -18,14 +18,11 @@ public class Settings {
 		}
 		Set<LightBlockPos> ret = new HashSet<>();
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-			String line;
-			while ((line = in.readLine()) != null ) {
-				String[] split = line.split(",");
-				ret.add(new LightBlockPos(
-						Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2])));
+			DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+			while (true) {
+				ret.add(new LightBlockPos(in.readInt(), in.readInt(), in.readInt()));
 			}
-			in.close();
+		} catch (EOFException e) {
 			return ret;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -39,12 +36,16 @@ public class Settings {
 		File file = new File(Utils.getCurrentSaveDirectory(), UNBREAKABLE_BLOCKS_FILE);
 
 		try {
-			PrintStream out = new PrintStream(new FileOutputStream(file));
+			DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 			for (LightBlockPos pos : posSet) {
-				out.println(pos.x + "," + pos.y + "," + pos.z);
+				out.writeInt(pos.x);
+				out.writeInt(pos.y);
+				out.writeInt(pos.z);
 			}
 			out.close();
 		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
