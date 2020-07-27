@@ -76,14 +76,12 @@ public final class Labrynth {
 		World world = iWorld.getWorld();
 		DimensionType dimType = world.getDimension().getType();
 		if (!world.isRemote()) {
-			mazeSize = MazeSizeMenuOption.getWorldMazeSize(world);
 
-			labrynth = Grid.genMaze(world.getSeed(),MAZE_SIZES[mazeSize]);
-			LOGGER.info("Generating maze with " + MAZE_SIZES[mazeSize] + " paths.");
-
+			labrynth = MazeSizeMenuOption.getWorldMaze(world);
+			LOGGER.info("Maze has size of " + labrynth.getSize() + " max paths.");
 			if (DEBUG) {
 				MAZE_DRAW_UPDATE_HANDLER.updateWorldSeed(iWorld.getSeed());
-				MAZE_DRAW_UPDATE_HANDLER.updateMaxPaths(MAZE_SIZES[mazeSize]);
+				MAZE_DRAW_UPDATE_HANDLER.updateMaxPaths(labrynth.getSize());
 				LOGGER.log(Level.INFO, "Dimension ID = " + dimType.getId());
 			}
 

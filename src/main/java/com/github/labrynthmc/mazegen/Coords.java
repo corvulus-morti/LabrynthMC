@@ -1,6 +1,8 @@
 package com.github.labrynthmc.mazegen;
 
-public class Coords {
+import java.io.Serializable;
+
+public class Coords implements Serializable {
 	private int x, y;
 
 	public Coords() {

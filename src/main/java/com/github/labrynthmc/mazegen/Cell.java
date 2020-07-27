@@ -1,8 +1,9 @@
 package com.github.labrynthmc.mazegen;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class Cell {
+public class Cell implements Serializable {
 
 	private char type = '0';
 	private byte openSides[] = {0, 0, 0, 0};
