@@ -2,22 +2,13 @@ package com.github.labrynthmc.settings;
 
 import com.github.labrynthmc.Labrynth;
 import com.github.labrynthmc.mazegen.Grid;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
-import net.minecraft.world.storage.WorldInfo;
-import net.minecraft.world.storage.WorldSavedData;
 
 import java.io.*;
-import java.util.Objects;
-import java.util.Scanner;
 
 import static com.github.labrynthmc.Labrynth.*;
+import static com.github.labrynthmc.util.Utils.getCurrentSaveDirectory;
 
 public class MazeSizeMenuOption {
 
@@ -45,12 +36,10 @@ public class MazeSizeMenuOption {
     public static Grid getWorldMaze(World world)
     {
         Grid maze;
-        String dir = Minecraft.getInstance().gameDir.getAbsolutePath();
-        String save = Minecraft.getInstance().getIntegratedServer().getFolderName();
-        File mazeSaveData = new File(dir+"/saves/"+save+"/","maze_grid.dat");
+        File mazeSaveData = new File(getCurrentSaveDirectory(),"maze_grid.dat");
+        File mazeSizeData = new File(getCurrentSaveDirectory(),"maze_size.dat");
 
         int size;
-        File mazeSizeData = new File(dir+"/saves/"+save+"/","maze_size.dat");
 
         if (!mazeSaveData.exists()) {
             size = mazeSize;

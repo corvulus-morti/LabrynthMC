@@ -3,6 +3,8 @@ package com.github.labrynthmc;
 
 import com.github.labrynthmc.mazegen.Coords;
 import com.github.labrynthmc.settings.MazeSizeMenuOption;
+import com.github.labrynthmc.structures.LightBlockPos;
+import com.github.labrynthmc.structures.UnbreakableBlocks;
 import com.github.labrynthmc.world.FeatureInit;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,6 +17,7 @@ import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -123,5 +126,12 @@ public class ModEventSubscriber {
 		}
 	}
 
+	@SubscribeEvent
+	public void onPlayerBreakSpeed(PlayerEvent.BreakSpeed e) {
+		LightBlockPos myBlockPos = new LightBlockPos(e.getPos());
+		if (UnbreakableBlocks.getUnbreakableBlocks().contains(myBlockPos)) {
+			e.setNewSpeed(0);
+		}
+	}
 
 }

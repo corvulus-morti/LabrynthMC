@@ -5,6 +5,7 @@ import net.minecraft.util.math.BlockPos;
 import org.apache.logging.log4j.Level;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.concurrent.*;
@@ -40,7 +41,7 @@ public class MazeDrawUpdateHandler {
 			return;
 		}
 
-		if (Labrynth.DEBUG) {
+		if (Labrynth.DEBUG && false) {
 			Labrynth.LOGGER.log(Level.INFO, "updating the players location" + pos.getX() + ", " + pos.getZ());
 		}
 
@@ -54,10 +55,8 @@ public class MazeDrawUpdateHandler {
 	public void updateWorldSeed(long seed) {
 		if (s != null) {
 			try {
-				Labrynth.LOGGER.log(Level.INFO, "closing the connection");
 				s.close(); // close for now so that we can open a new one
 			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 		executor.execute(() -> getPrintStream().println("seed " + seed));
@@ -67,7 +66,6 @@ public class MazeDrawUpdateHandler {
 	public void updateMaxPaths(int paths) {
 		if (s != null) {
 			try {
-				Labrynth.LOGGER.log(Level.INFO, "closing the connection");
 				s.close(); // close for now so that we can open a new one
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -80,14 +78,17 @@ public class MazeDrawUpdateHandler {
 	private PrintStream getPrintStream() {
 
 		if (s == null || s.isClosed() || s.isOutputShutdown()) {
-			Labrynth.LOGGER.log(Level.INFO, "need new connection");
 			try {
 				s = new Socket("localhost", PORT);
 				out = new PrintStream(s.getOutputStream());
 			} catch (IOException e) {
-				Labrynth.LOGGER.log(Level.ERROR, "failed connection");
-				e.printStackTrace();
 			}
+		}
+		if (out == null) {
+			return new PrintStream(new OutputStream() {
+				@Override
+				public void write(int b) throws IOException {}
+			});
 		}
 		return out;
 	}
