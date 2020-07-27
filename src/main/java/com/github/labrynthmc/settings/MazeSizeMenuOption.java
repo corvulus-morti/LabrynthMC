@@ -1,6 +1,7 @@
 package com.github.labrynthmc.settings;
 
 import com.github.labrynthmc.Labrynth;
+import com.github.labrynthmc.mazegen.Grid;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -41,22 +42,49 @@ public class MazeSizeMenuOption {
             LOGGER.info("Maze size set to " + MAZE_SIZES[mazeSize] + ".");
         });
 
-    public static int getWorldMazeSize(World world)
+    public static Grid getWorldMaze(World world)
     {
-        int size;
-
+        Grid maze;
         String dir = Minecraft.getInstance().gameDir.getAbsolutePath();
         String save = Minecraft.getInstance().getIntegratedServer().getFolderName();
-        File saveData = new File(dir+"/saves/"+save+"/","mazeSize.txt");
-        if (!saveData.exists()) {
-            saveMazeSize(saveData, mazeSize);
+        File mazeSaveData = new File(dir+"/saves/"+save+"/","maze_grid.dat");
+
+        int size;
+        File mazeSizeData = new File(dir+"/saves/"+save+"/","maze_size.dat");
+
+        if (!mazeSaveData.exists()) {
             size = mazeSize;
+            maze = Grid.genMaze(world.getSeed(),MAZE_SIZES[size]);
+            saveMaze(mazeSaveData,maze);
+            saveMazeSize(mazeSizeData, size);
         }
         else {
-            size = loadMazeSize(saveData);
+            maze = loadMaze(mazeSaveData);
+            size = loadMazeSize(mazeSizeData);
         }
 
-        return size;
+        return maze;
+    }
+
+    public static void saveMaze(File file, Grid maze) {
+        try {
+            ObjectOutputStream obOut = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+            obOut.writeObject(maze);
+            obOut.close();
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
+    public static Grid loadMaze(File file) {
+        try {
+            ObjectInputStream obIn = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
+            return (Grid) obIn.readObject();
+        } catch (IOException i) {
+            i.printStackTrace();
+        } catch (ClassNotFoundException cnfe) {
+            cnfe.printStackTrace();
+        }
+        return null;
     }
 
     public static void saveMazeSize(File file, int mazeSize) {

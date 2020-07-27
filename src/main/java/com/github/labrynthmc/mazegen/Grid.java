@@ -3,9 +3,12 @@ package com.github.labrynthmc.mazegen;
 import com.github.labrynthmc.Labrynth;
 import org.apache.logging.log4j.Level;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Grid {
+import static com.github.labrynthmc.Labrynth.MAZE_SIZES;
+
+public class Grid implements Serializable {
 	public static final Coords MOVE[] = {
 		new Coords(0, -1), //north
 		new Coords(1, 0),  //east
@@ -21,6 +24,7 @@ public class Grid {
 	private Coords entrance = new Coords(0, 0);
 	private int Dx[] = {Integer.MAX_VALUE, Integer.MIN_VALUE};
 	private int Dy[] = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+	private int size;
 
 	private Grid(long seed) {
 		r = new Random(seed);
@@ -59,6 +63,11 @@ public class Grid {
 		return Dy[1];
 	}
 
+	public int getSize() {
+		return size;
+	}
+	public void setSize(int size){ this.size = size;}
+
 	public boolean isInSolution(Coords c) {
 		return solutionSet.contains(c);
 	}
@@ -83,6 +92,9 @@ public class Grid {
 
 	public static Grid genMaze(long worldSeed, int maxPaths) {
 		Grid grid = new Grid(worldSeed);
+
+		grid.setSize(maxPaths);
+
 		Random r = grid.r;
 		int center[] = {
 				(int) Math.round(r.nextGaussian() * 10),
