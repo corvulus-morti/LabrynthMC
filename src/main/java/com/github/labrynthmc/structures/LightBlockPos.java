@@ -6,6 +6,10 @@ public class LightBlockPos {
 
 	public long data;
 
+	public LightBlockPos(long data) {
+		this.data = data;
+	}
+
 	public LightBlockPos(int x, int y, int z) {
 		x += 1 << 27;
 		y += 0;
