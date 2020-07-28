@@ -38,9 +38,9 @@ public class Settings {
 		try {
 			DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 			for (LightBlockPos pos : posSet) {
-				out.writeInt(pos.x);
-				out.writeInt(pos.y);
-				out.writeInt(pos.z);
+				out.writeInt(pos.getX());
+				out.writeInt(pos.getY());
+				out.writeInt(pos.getZ());
 			}
 			out.close();
 		} catch (FileNotFoundException e) {

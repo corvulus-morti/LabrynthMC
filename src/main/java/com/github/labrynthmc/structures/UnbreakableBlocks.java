@@ -1,7 +1,5 @@
 package com.github.labrynthmc.structures;
 
-import com.github.labrynthmc.Labrynth;
-import com.github.labrynthmc.settings.Settings;
 import com.github.labrynthmc.util.Utils;
 
 import java.util.HashSet;
@@ -26,20 +24,21 @@ public class UnbreakableBlocks {
 			set.add(block);
 		}
 
-		Utils.throttle(() -> {
-			Set<LightBlockPos> tmp = new HashSet<>();
-			synchronized (lock) {
-				tmp.addAll(set);
-			}
-			Settings.writeUnbreakableBlocks(tmp);
-		}, token, 1000);
+//		Utils.throttle(() -> {
+//			Set<LightBlockPos> tmp = new HashSet<>();
+//			long t = System.currentTimeMillis();
+//			synchronized (lock) {
+//				tmp.addAll(set);
+//			}
+//			Settings.writeUnbreakableBlocks(tmp);
+//		}, token, 5000);
 	}
 
 	private static void setCurrentUnbreakableSet() {
 		String saveDir = Utils.getCurrentSaveDirectory();
 		if (!saveDir.equals(currentSaveDir)) {
 			currentSaveDir = saveDir;
-			set = Settings.readUnbreakableBlocks();
+//			set = Settings.readUnbreakableBlocks();
 			if (set == null) {
 				set = new HashSet<>();
 			}
