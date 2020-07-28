@@ -1,21 +1,25 @@
 package com.github.labrynthmc.structures;
 
-import com.github.labrynthmc.ModEventSubscriber;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Objects;
-
 public class LightBlockPos {
-	public int x, y, z;
+
+	public long data;
+
+	public LightBlockPos(long data) {
+		this.data = data;
+	}
+
 	public LightBlockPos(int x, int y, int z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		x += 1 << 27;
+		y += 0;
+		z += 1 << 27;
+		if (x >= 0 && y >= 0 && z >= 0 && x < 1 << 28 && y < 1 << 8 && z < 1 << 28) {
+			data = (((long) x) << 36) | (((long) y) << 28) | z;
+		}
 	}
 	public LightBlockPos(BlockPos pos) {
-		this.x = pos.getX();
-		this.y = pos.getY();
-		this.z = pos.getZ();
+		this(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	@Override
@@ -23,22 +27,32 @@ public class LightBlockPos {
 		if (this == o) return true;
 		if (!(o instanceof LightBlockPos)) return false;
 		LightBlockPos that = (LightBlockPos) o;
-		return x == that.x &&
-				y == that.y &&
-				z == that.z;
+		return data == that.data;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(x, y, z);
+		return Long.hashCode(data);
+	}
+
+	public int getX() {
+		return (int) ((data >>> 36) & ((1 << 28) - 1)) - (1 << 27);
+	}
+
+	public int getY() {
+		return (int) ((data >>> 28) & ((1 << 8) - 1));
+	}
+
+	public int getZ() {
+		return (int) (data & ((1 << 28) - 1)) - (1 << 27);
 	}
 
 	@Override
 	public String toString() {
 		return "LightBlockPos{" +
-				"x=" + x +
-				", y=" + y +
-				", z=" + z +
+				"x=" + getX() +
+				", y=" + getY() +
+				", z=" + getZ() +
 				'}';
 	}
 }
