@@ -16,16 +16,14 @@ public class MazeDrawUpdateHandler {
 
 	private static MazeDrawUpdateHandler instance;
 
-	ThreadPoolExecutor executor;
+	private final Object updateLocationToken = new Object();
 
-	BlockPos lastPlayerPosition;
-	float lastYaw = 0.0f;
-	Socket s;
-	PrintStream out;
+	private BlockPos lastPlayerPosition;
+	private float lastYaw = 0.0f;
+	private Socket s;
+	private PrintStream out;
 
 	private MazeDrawUpdateHandler() {
-		executor = new ThreadPoolExecutor(1, 1, 0,TimeUnit.MILLISECONDS,
-				new LinkedBlockingDeque<>());
 	}
 
 	public static MazeDrawUpdateHandler getInstance() {
@@ -41,15 +39,10 @@ public class MazeDrawUpdateHandler {
 			return;
 		}
 
-		if (Labrynth.DEBUG && false) {
-			Labrynth.LOGGER.log(Level.INFO, "updating the players location" + pos.getX() + ", " + pos.getZ());
-		}
-
 		lastPlayerPosition = pos;
 		lastYaw = yaw;
-
-		executor.getQueue().poll();
-		executor.execute(() -> getPrintStream().println("pos " + pos.getX() + " " + pos.getZ() + " " + yaw));
+		Utils.throttle(() -> getPrintStream().println("pos " + pos.getX() + " " + pos.getZ() + " " + yaw),
+				updateLocationToken, 1);
 	}
 
 	public void updateWorldSeed(long seed) {
@@ -59,8 +52,8 @@ public class MazeDrawUpdateHandler {
 			} catch (IOException e) {
 			}
 		}
-		executor.execute(() -> getPrintStream().println("seed " + seed));
-
+		Utils.throttle(() -> getPrintStream().println("seed " + seed),
+				new Object(), 1);
 	}
 
 	public void updateMaxPaths(int paths) {
@@ -71,8 +64,8 @@ public class MazeDrawUpdateHandler {
 				e.printStackTrace();
 			}
 		}
-		executor.execute(() -> getPrintStream().println("maxPaths " + paths));
-
+		Utils.throttle(() -> getPrintStream().println("maxPaths " + paths),
+				new Object(), 1);
 	}
 
 	private PrintStream getPrintStream() {

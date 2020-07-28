@@ -49,10 +49,9 @@ public class Utils {
 			t = new Thread(() -> {
 				while (true) {
 					try {
-						FutureTask futureTask = tasks.peek();
-						if (futureTask == null) {
-							tasks.poll();
-							continue;
+						FutureTask futureTask = tasks.take();
+						synchronized (lock) {
+							tasks.put(futureTask);
 						}
 						Thread.sleep(Math.max(0, futureTask.launchTime - System.currentTimeMillis()));
 						synchronized (lock) {
@@ -81,7 +80,7 @@ public class Utils {
 			} else {
 				FutureTask futureTask = new FutureTask(token, System.currentTimeMillis(), rateLimit, runnable);
 				tasksMap.put(token, futureTask);
-				tasks.offer(futureTask);
+				tasks.put(futureTask);
 				t.interrupt();
 			}
 		}
