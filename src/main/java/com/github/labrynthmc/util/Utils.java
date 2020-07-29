@@ -11,7 +11,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 public class Utils {
 
-	private static ExecutorService executorService = Executors.newScheduledThreadPool(4);
+	private static ExecutorService executorService = Executors.newFixedThreadPool(4);
 	private static Thread t;
 	private static PriorityBlockingQueue<FutureTask> tasks = new PriorityBlockingQueue<>();
 	private static Map<Object, FutureTask> tasksMap = new HashMap<>();
