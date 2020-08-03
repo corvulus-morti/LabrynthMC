@@ -150,7 +150,7 @@ public class Grid implements Serializable {
 			Coords start = new Coords();
 			int attempts = 0;
 			int std = 50;
-			int rad = 0;
+			int rad = (int) Math.sqrt(grid.grid.size() / Math.PI);
 			double randRad;
 			double randAngle;
 			do {
@@ -160,10 +160,6 @@ public class Grid implements Serializable {
 				int Y = (int) Math.round(randRad * Math.sin(randAngle)) + center[1];
 				start.setX(X);
 				start.setY(Y);
-				if (++attempts == 100) {
-					attempts = 0;
-					rad += 2 * std;
-				}
 			} while (grid.getCell(start) != null);
 			attempts = 0;
 			path.add(start);
