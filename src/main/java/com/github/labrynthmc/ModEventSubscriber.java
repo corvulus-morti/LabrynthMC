@@ -6,6 +6,7 @@ import com.github.labrynthmc.settings.MazeSizeMenuOption;
 import com.github.labrynthmc.structures.LightBlockPos;
 import com.github.labrynthmc.structures.UnbreakableBlocks;
 import com.github.labrynthmc.world.FeatureInit;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
@@ -114,6 +115,9 @@ public class ModEventSubscriber {
 		if (e.getEntityLiving() == null || !(e.getEntityLiving() instanceof PlayerEntity)) {
 			return;
 		}
+		if (!isNether()) {
+			return;
+		}
 		Entity player = e.getEntity();
 		MAZE_DRAW_UPDATE_HANDLER.updatePlayerPosition(player.getPosition(), player.getYaw(1.0F));
 	}
@@ -130,6 +134,9 @@ public class ModEventSubscriber {
 
 	@SubscribeEvent
 	public void onPlayerBreakSpeed(PlayerEvent.BreakSpeed e) {
+		if (!isNether()) {
+			return;
+		}
 		LightBlockPos myBlockPos = new LightBlockPos(e.getPos());
 		if (UnbreakableBlocks.getUnbreakableBlocks().contains(myBlockPos)) {
 			e.setNewSpeed(0);
@@ -138,7 +145,7 @@ public class ModEventSubscriber {
 
 	@SubscribeEvent
 	public void onExplosionDetonate(ExplosionEvent.Detonate e) {
-		if (!DimensionType.THE_NETHER.equals(e.getWorld().getDimension().getType())) {
+		if (!isNether()) {
 			return;
 		}
 		List<BlockPos> blocks = e.getExplosion().getAffectedBlockPositions();
@@ -146,6 +153,14 @@ public class ModEventSubscriber {
 			if (UnbreakableBlocks.getUnbreakableBlocks().contains(new LightBlockPos(blocks.get(i)))) {
 				blocks.remove(i--);
 			}
+		}
+	}
+
+	private boolean isNether() {
+		try {
+			return DimensionType.THE_NETHER.equals(Minecraft.getInstance().world.getDimension().getType());
+		} catch (NullPointerException e) {
+			return false;
 		}
 	}
 }
