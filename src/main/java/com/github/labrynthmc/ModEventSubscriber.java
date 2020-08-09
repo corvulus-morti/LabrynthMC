@@ -11,6 +11,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraftforge.client.event.GuiScreenEvent;
@@ -18,6 +19,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
@@ -134,4 +136,16 @@ public class ModEventSubscriber {
 		}
 	}
 
+	@SubscribeEvent
+	public void onExplosionDetonate(ExplosionEvent.Detonate e) {
+		if (!DimensionType.THE_NETHER.equals(e.getWorld().getDimension().getType())) {
+			return;
+		}
+		List<BlockPos> blocks = e.getExplosion().getAffectedBlockPositions();
+		for (int i = 0; i < blocks.size(); i++) {
+			if (UnbreakableBlocks.getUnbreakableBlocks().contains(new LightBlockPos(blocks.get(i)))) {
+				blocks.remove(i--);
+			}
+		}
+	}
 }
