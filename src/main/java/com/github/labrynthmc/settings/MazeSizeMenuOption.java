@@ -35,7 +35,7 @@ public class MazeSizeMenuOption {
 
     public static Grid getWorldMaze(World world)
     {
-        Grid maze;
+        Grid maze = new Grid();
         File mazeSaveData = new File(getCurrentSaveDirectory(),"maze_grid.dat");
         File mazeSizeData = new File(getCurrentSaveDirectory(),"maze_size.dat");
 
@@ -43,7 +43,7 @@ public class MazeSizeMenuOption {
 
         if (!mazeSaveData.exists()) {
             size = mazeSize;
-            maze = Grid.genMaze(world.getSeed(),MAZE_SIZES[size]);
+            maze.genMaze(world.getSeed(),MAZE_SIZES[size]);
             saveMaze(mazeSaveData,maze);
             saveMazeSize(mazeSizeData, size);
         }

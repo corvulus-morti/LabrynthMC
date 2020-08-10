@@ -1,11 +1,15 @@
 package com.github.labrynthmc.mazegen;
 
 import com.github.labrynthmc.Labrynth;
+import com.sun.jna.platform.unix.X11;
 import org.apache.logging.log4j.Level;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.github.labrynthmc.Labrynth.LOGGER;
 import static com.github.labrynthmc.Labrynth.MAZE_SIZES;
 
 public class Grid implements Serializable {
@@ -16,19 +20,19 @@ public class Grid implements Serializable {
 		new Coords(-1, 0) //west
 	};
 
-	private  Random r;
 	private HashMap<Coords, Cell> grid = new HashMap<>();
 	private List<Coords> solution = new ArrayList<>();
 	private Set<Coords> solutionSet = new HashSet<>();
-	private Coords center = new Coords(0, 0);
-	private Coords entrance = new Coords(0, 0);
+	private Coords center;
+	private Coords fixedCells[];
+	private Coords entrance;
 	private int Dx[] = {Integer.MAX_VALUE, Integer.MIN_VALUE};
 	private int Dy[] = {Integer.MAX_VALUE, Integer.MIN_VALUE};
 	private int size;
 
-	private Grid(long seed) {
-		r = new Random(seed);
-	}
+//	private Grid(long seed) {
+//		r = new Random(seed);
+//	}
 
 	public Coords getCenter() {
 		return center;
@@ -88,155 +92,232 @@ public class Grid implements Serializable {
 		else if (pos.getY() > Dy[1]) Dy[1] = pos.getY();
 	}
 
-	//CREATE METHOD TO GENERATE STRUCTURES IN GRID
+	public void addPath(ArrayList<Coords> path){
+		if (this.grid.get(path.get(0)) == null) this.addCell(path.get(0));
+		for (int n = 1; n < path.size(); n++) {
+			Coords last = path.get(n - 1);
+			Coords curr = path.get(n);
 
-	public static Grid genMaze(long worldSeed, int maxPaths) {
-		Grid grid = new Grid(worldSeed);
-
-		grid.setSize(maxPaths);
-
-		Random r = grid.r;
-		int center[] = {
-				(int) Math.round(r.nextGaussian() * 10),
-				(int) Math.round(r.nextGaussian() * 10)
-		};
-		Coords pos = new Coords(center[0], center[1]);
-
-
-		grid.addCell(pos);
-		grid.addCell(pos.add(MOVE[0]));
-		grid.addCell(pos.add(MOVE[1]));
-		grid.addCell(pos.add(MOVE[2]));
-		grid.addCell(pos.add(MOVE[3]));
-
-		grid.getCell(pos).setOpenSides("1111");
-		grid.getCell(pos.add(MOVE[0])).setOpenSides("1111");
-		grid.getCell(pos.add(MOVE[1])).setOpenSides("1111");
-		grid.getCell(pos.add(MOVE[2])).setOpenSides("1111");
-		grid.getCell(pos.add(MOVE[3])).setOpenSides("1111");
-
-		grid.addCell(pos.add(MOVE[0]).add(MOVE[3]));
-		grid.addCell(pos.add(MOVE[0]).add(MOVE[1]));
-		grid.addCell(pos.add(MOVE[2]).add(MOVE[3]));
-		grid.addCell(pos.add(MOVE[2]).add(MOVE[1]));
-		grid.getCell(pos.add(MOVE[0]).add(MOVE[3])).setOpenSides("0110");
-		grid.getCell(pos.add(MOVE[0]).add(MOVE[1])).setOpenSides("0011");
-		grid.getCell(pos.add(MOVE[2]).add(MOVE[3])).setOpenSides("1100");
-		grid.getCell(pos.add(MOVE[2]).add(MOVE[1])).setOpenSides("1001");
-
-		grid.addCell(pos.add(MOVE[0]).add(MOVE[0]));
-		grid.addCell(pos.add(MOVE[1]).add(MOVE[1]));
-		grid.addCell(pos.add(MOVE[2]).add(MOVE[2]));
-		grid.addCell(pos.add(MOVE[3]).add(MOVE[3]));
-		grid.getCell(pos.add(MOVE[0]).add(MOVE[0])).setOpenSides("0010");
-		grid.getCell(pos.add(MOVE[1]).add(MOVE[1])).setOpenSides("0001");
-		grid.getCell(pos.add(MOVE[2]).add(MOVE[2])).setOpenSides("1000");
-		grid.getCell(pos.add(MOVE[3]).add(MOVE[3])).setOpenSides("0100");
-
-		final Coords fixed[] =
-				{
-						pos.add(MOVE[0]).add(MOVE[1]),
-						pos.add(MOVE[0]).add(MOVE[3]),
-						pos.add(MOVE[2]).add(MOVE[1]),
-						pos.add(MOVE[2]).add(MOVE[3])
-				};
-
-		int lz = 0;
-
-		while (lz < maxPaths) {
-			lz++;
-			ArrayList<Coords> path = new ArrayList<>();
-
-			Coords start = new Coords();
-			int attempts = 0;
-			int std = 50;
-			int rad = (int) Math.sqrt(grid.grid.size() / Math.PI);
-			double randRad;
-			double randAngle;
-			do {
-				randRad = r.nextGaussian() * std + (double) rad;
-				randAngle = r.nextDouble()*2*Math.PI;
-				int X = (int) Math.round(randRad * Math.cos(randAngle)) + center[0];
-				int Y = (int) Math.round(randRad * Math.sin(randAngle)) + center[1];
-				start.setX(X);
-				start.setY(Y);
-			} while (grid.getCell(start) != null);
-			attempts = 0;
-			path.add(start);
-			pos = new Coords(start.getX(), start.getY());
-			//pos = pos.add(move[d]);
-
-			int d = r.nextInt(4);
-			while (grid.getCell(pos) == null) {
-				int rot = r.nextInt(3) - 1;
-				d = (d + rot + 4) % 4;
-
-				pos = pos.add(MOVE[d]);
-
-				byte check = 0;
-				for (Coords p : path) if (pos.equals(p)) check |= 1;
-				for (Coords p : fixed) if (pos.equals(p)) check |= 1;
-				if (check == 1) {
-					do {
-						randRad = r.nextGaussian() * std + (double) rad;
-						randAngle = r.nextDouble() * 2 * Math.PI;
-						int X = (int)Math.round( randRad*Math.cos(randAngle) ) + center[0];
-						int Y = (int)Math.round( randRad*Math.sin(randAngle) ) + center[1];
-						start.setX(X);
-						start.setY(Y);
-						if (++attempts == 100) {
-							attempts = 0;
-							rad += 2 * std;
-						}
-					} while (grid.getCell(start) != null);
-					attempts = 0;
-					path = new ArrayList<>();
-					path.add(start);
-					pos = new Coords(start.getX(), start.getY());
-					d = r.nextInt(4);
-					continue;
-				}
-				path.add(pos);
+			if (this.getCell(curr) == null) this.addCell(curr);
+			if (curr.getX() - last.getX() == 1) {
+				this.getCell(last).setSide(1, true);
+				this.getCell(curr).setSide(3, true);
+			} else if (curr.getX() - last.getX() == -1) {
+				this.getCell(last).setSide(3, true);
+				this.getCell(curr).setSide(1, true);
+			} else if (curr.getY() - last.getY() == 1) {
+				this.getCell(last).setSide(2, true);
+				this.getCell(curr).setSide(0, true);
+			} else if (curr.getY() - last.getY() == -1) {
+				this.getCell(last).setSide(0, true);
+				this.getCell(curr).setSide(2, true);
 			}
-
-			grid.addCell(path.get(0));
-			for (int n = 1; n < path.size(); n++) {
-				Coords last = path.get(n - 1);
-				Coords curr = path.get(n);
-
-				if (grid.getCell(curr) == null) grid.addCell(curr);
-				if (curr.getX() - last.getX() == 1) {
-					grid.getCell(last).setSide(1, true);
-					grid.getCell(curr).setSide(3, true);
-				} else if (curr.getX() - last.getX() == -1) {
-					grid.getCell(last).setSide(3, true);
-					grid.getCell(curr).setSide(1, true);
-				} else if (curr.getY() - last.getY() == 1) {
-					grid.getCell(last).setSide(2, true);
-					grid.getCell(curr).setSide(0, true);
-				} else if (curr.getY() - last.getY() == -1) {
-					grid.getCell(last).setSide(0, true);
-					grid.getCell(curr).setSide(2, true);
-				}
-				if (grid.getCell(curr).getType() == '0')
-					Labrynth.LOGGER.log(Level.ERROR,
-							"Something went wrong in path " + lz + " with element " + n + ":"
-									+ "\n\tCurrent: " + grid.getCell(curr) + " " + curr
-									+ "\n\tLast: " + grid.getCell(last) + " " + last
-					);
-			}
+			if (this.getCell(curr).getType() == '0')
+				Labrynth.LOGGER.log(Level.ERROR,
+						"Something went wrong in path with element " + n + ":"
+								+ "\n\tCurrent: " + this.getCell(curr) + " " + curr
+								+ "\n\tLast: " + this.getCell(last) + " " + last
+				);
 		}
-
-		grid.createEntrance();
-
-		return grid;
 	}
 
-	private void createEntrance() {
+	private Coords findStart(int rad, double std, double scalar, int maxAttempts, Random r) {
+		Coords start = new Coords();
+		Coords center = this.getCenter();
+		int attempts = 0;
+		double randRad;
+		double randAngle;
+		do {
+			randRad = r.nextGaussian() * std + rad;
+			randAngle = r.nextDouble()*2*Math.PI;
+			int X = (int) Math.round(randRad * Math.cos(randAngle)) + center.getX();
+			int Y = (int) Math.round(randRad * Math.sin(randAngle)) + center.getY();
+			start.setX(X);
+			start.setY(Y);
+			if (++attempts == maxAttempts) {
+				attempts = 0;
+				rad = (int)(scalar * Math.sqrt(this.grid.size()/Math.PI));
+			}
+		} while (this.getCell(start) != null);
+
+
+		return start;
+	}
+
+	private ArrayList<Coords> buildPath(Coords start, Random r){
+		if (this.getCell(start) != null) return null;
+		ArrayList<Coords> path = new ArrayList<>();
+
+		path.add(start);
+		Coords pos = new Coords(start.getX(), start.getY());
+		int d = r.nextInt(4);
+		int rot;
+		while (this.getCell(pos) == null) {
+			rot = r.nextInt(3) - 1;
+			d = (d + rot + 4) % 4;
+
+			pos = pos.add(MOVE[d]);
+
+			byte check = 0;
+			for (Coords p : path) if (pos.equals(p)) check |= 1;
+//			if (check == 1) LOGGER.info("Definitely hit myself.");
+			for (Coords p : fixedCells) if (pos.equals(p)) check |= 1;
+			if (check == 1) {
+//				LOGGER.info("Path failed with length "+path.size());
+//				LOGGER.info("Pos at " + pos);
+				return null;
+			}
+			path.add(pos);
+		}
+		return path;
+	}
+
+	//CREATE METHOD TO GENERATE STRUCTURES IN GRID
+
+	public void genMaze(long worldSeed, int maxPaths) {
+		LOGGER.info("Starting maze generation.");
+		this.grid = new HashMap<>();
+		this.solution = new ArrayList<>();
+		this.solutionSet = new HashSet<>();
+
+		Random r = new Random(worldSeed);
+
+		this.setSize(maxPaths);
+
+		this.center = new Coords(
+				(int) Math.round(r.nextGaussian() * 100),
+				(int) Math.round(r.nextGaussian() * 100)
+		);
+		Coords pos = this.center;
+
+
+		this.addCell(pos);
+		this.addCell(pos.add(MOVE[0]));
+		this.addCell(pos.add(MOVE[1]));
+		this.addCell(pos.add(MOVE[2]));
+		this.addCell(pos.add(MOVE[3]));
+
+		this.getCell(pos).setOpenSides("1111");
+		this.getCell(pos.add(MOVE[0])).setOpenSides("1111");
+		this.getCell(pos.add(MOVE[1])).setOpenSides("1111");
+		this.getCell(pos.add(MOVE[2])).setOpenSides("1111");
+		this.getCell(pos.add(MOVE[3])).setOpenSides("1111");
+
+		this.addCell(pos.add(MOVE[0]).add(MOVE[3]));
+		this.addCell(pos.add(MOVE[0]).add(MOVE[1]));
+		this.addCell(pos.add(MOVE[2]).add(MOVE[3]));
+		this.addCell(pos.add(MOVE[2]).add(MOVE[1]));
+		this.getCell(pos.add(MOVE[0]).add(MOVE[3])).setOpenSides("0110");
+		this.getCell(pos.add(MOVE[0]).add(MOVE[1])).setOpenSides("0011");
+		this.getCell(pos.add(MOVE[2]).add(MOVE[3])).setOpenSides("1100");
+		this.getCell(pos.add(MOVE[2]).add(MOVE[1])).setOpenSides("1001");
+
+		this.addCell(pos.add(MOVE[0]).add(MOVE[0]));
+		this.addCell(pos.add(MOVE[1]).add(MOVE[1]));
+		this.addCell(pos.add(MOVE[2]).add(MOVE[2]));
+		this.addCell(pos.add(MOVE[3]).add(MOVE[3]));
+		this.getCell(pos.add(MOVE[0]).add(MOVE[0])).setOpenSides("0010");
+		this.getCell(pos.add(MOVE[1]).add(MOVE[1])).setOpenSides("0001");
+		this.getCell(pos.add(MOVE[2]).add(MOVE[2])).setOpenSides("1000");
+		this.getCell(pos.add(MOVE[3]).add(MOVE[3])).setOpenSides("0100");
+
+		this.fixedCells = new Coords[]{
+				pos.add(MOVE[0]).add(MOVE[1]),
+				pos.add(MOVE[0]).add(MOVE[3]),
+				pos.add(MOVE[2]).add(MOVE[1]),
+				pos.add(MOVE[2]).add(MOVE[3])
+		};
+
+		for (int d=0; d < 4; d++) {
+			ArrayList<Coords> path = new ArrayList<>();
+			pos = center.add(MOVE[d]).add(MOVE[d]);
+			path.add(pos);
+			for (int n = 0; n < 4; n++)
+			{
+				pos = pos.add(MOVE[d]);
+				path.add(pos);
+			}
+			this.addPath(path);
+		}
+
+		double std = 2;
+		double scalar = 2;
+		double rad = scalar*Math.sqrt(this.grid.size()/Math.PI);
+		int maxAttempts = 100;
+
+		for (int lz = 4; lz < 0.25*maxPaths; lz++) {
+			boolean pathFound = false;
+			ArrayList<Coords> path = new ArrayList<>();
+			while (!pathFound){
+				int attempts = 0;
+				while (attempts < maxAttempts){
+					double radius = r.nextGaussian()*std + rad;
+					double theta = r.nextDouble()*2*Math.PI;
+					Coords start = new Coords(
+							(int) (radius*Math.cos(theta))+center.getX(),
+							(int) (radius*Math.sin(theta))+center.getY()
+					);
+
+					path = this.buildPath(start,r);
+
+					if (path != null){
+						LOGGER.info("Path found.");
+						pathFound = true;
+						break;
+					}
+					else attempts++;
+				}
+				if (pathFound) break;
+
+				rad = scalar*Math.sqrt(this.grid.size()/Math.PI);
+				LOGGER.info(""+lz+" "+rad);
+			}
+			this.addPath(path);
+			LOGGER.info("Path " + lz + " added.");
+		}
+		std = 50;
+		scalar = 1;
+		rad = 0;
+		for (int lz = 0; lz < 0.75*maxPaths; lz++) {
+			boolean pathFound = false;
+			ArrayList<Coords> path = new ArrayList<>();
+			while (!pathFound){
+				int attempts = 0;
+				while (attempts < maxAttempts){
+					double radius = r.nextGaussian()*std + rad;
+					double theta = r.nextDouble()*2*Math.PI;
+					Coords start = new Coords(
+							(int) (radius*Math.cos(theta))+center.getX(),
+							(int) (radius*Math.sin(theta))+center.getY()
+					);
+
+					path = this.buildPath(start,r);
+
+					if (path != null){
+						LOGGER.info("Path found.");
+						pathFound = true;
+						break;
+					}
+					else attempts++;
+				}
+				if (pathFound) break;
+
+				rad += 2*std;
+//				LOGGER.info(""+lz+0.25*max+" "+rad);
+			}
+			this.addPath(path);
+			LOGGER.info("Path " + (int)(lz+0.25*maxPaths) + " added.");
+		}
+
+//		-8029957180441823171
+		this.createEntrance(r);
+	}
+
+	private void createEntrance(Random r) {
 		Set<Coords> visited = new HashSet<>();
 		Queue<Coords> queue = new LinkedList<>();
 		HashMap<Coords, Coords> nextCoordToCenter = new HashMap<>();
-		queue.add(center);
+		queue.add(this.getCenter());
 
 		Coords lastCandidate = null;
 		while (!queue.isEmpty()) {
@@ -291,5 +372,3 @@ public class Grid implements Serializable {
 	}
 
 }
-
-
