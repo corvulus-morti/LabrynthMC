@@ -36,7 +36,7 @@ public final class Labrynth {
 	/** Set this to true when you want debugging logs */
 	public static final boolean DEBUG = true;
 
-	public static Grid labrynth;
+	public static Grid labrynth = new Grid();
 	public static final int SMALL_MAZE = 300;
 	public static final int MEDIUM_MAZE = 1200;
 	public static final int LARGE_MAZE = 4800;

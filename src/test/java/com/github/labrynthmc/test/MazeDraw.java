@@ -262,7 +262,7 @@ public class MazeDraw extends JFrame {
 
 	private class MazeCanvas extends JPanel {
 
-		Grid grid;
+		Grid grid = new Grid();
 
 		int leftx = Integer.MAX_VALUE;
 		int rightx = Integer.MIN_VALUE;
@@ -308,7 +308,7 @@ public class MazeDraw extends JFrame {
 		}
 
 		public void regenMaze() {
-			grid = Grid.genMaze(seed, maxPaths);
+			grid.genMaze(seed, maxPaths);
 
 			updateMazeDetails(grid.getKeys().size(), grid.getSolution().size(), (int) estimateSolutionPathLength(grid));
 
