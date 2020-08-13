@@ -111,8 +111,6 @@ public class MazeDraw extends JFrame {
 	private static final double OUTER_CORNER_DIST = Math.sqrt(11 * 11 * 2); // 0 -> 3
 	private static final double CROSS_ACROSS_DIST = Math.sqrt(15 * 15 + 5 * 5); // 0 -> 4
 	private static final double ACROSS_DIST = 15; // 0 -> 5
-	private static final double ENTRANCE_TO_SIDE_DIST = Math.sqrt(7.5 * 7.5 + 4 * 4); // 0.5 -> 2
-	private static final double ENTRANCE_TO_ACROSS = Math.sqrt(15 * 15 + 3.5 * 3.5); // 0.5 -> 4
 	private static final double CENTER_TO_NODE = Math.sqrt(7.5 * 7.5 + 3.5 * 3.5); // Center -> Any
 	/**
 	 * Each cell has the nodes laid out as below. We can ignore adding nodes on unopened sides.
@@ -130,24 +128,13 @@ public class MazeDraw extends JFrame {
 		Coords prevCoords = solution.get(0);
 		Cell prevCell = grid.getCell(prevCoords);
 		Node[] nodes = new Node[8];
-
-		int entranceSide = 0;
-		for (int i = 0; i < 4; i++) {
-			if (prevCell.getOpenSides()[i] == 1) {
-				nodes[2 * i] = new Node(prevCoords, 2 * i);
-				nodes[2 * i + 1] = new Node(prevCoords, 2 * i + 1);
-				if (grid.getCell(prevCoords.add(Grid.MOVE[i])) == null) {
-					entranceSide = i;
-				}
-			}
-		}
 		connectCellNodes(nodes);
 
 		Node entranceNode = new Node(prevCoords, 8);
-		connectNodes(entranceNode, nodes[(2 * entranceSide + 2) % 8], ENTRANCE_TO_SIDE_DIST);
-		connectNodes(entranceNode, nodes[(2 * entranceSide + 7) % 8], ENTRANCE_TO_SIDE_DIST);
-		connectNodes(entranceNode, nodes[(2 * entranceSide + 4) % 8], ENTRANCE_TO_ACROSS);
-		connectNodes(entranceNode, nodes[(2 * entranceSide + 5) % 8], ENTRANCE_TO_ACROSS);
+		for (int i = 0; i < 8; i++) {
+			nodes[i] = new Node(prevCoords, i);
+			connectNodes(entranceNode, nodes[i], CENTER_TO_NODE);
+		}
 
 		Node[] prevNodes = nodes;
 
