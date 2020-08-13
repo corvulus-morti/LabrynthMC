@@ -26,8 +26,8 @@ public class Grid implements Serializable {
 	private Coords center;
 	private Coords fixedCells[];
 	private Coords entrance;
-	private int Dx[] = {Integer.MAX_VALUE, Integer.MIN_VALUE};
-	private int Dy[] = {Integer.MAX_VALUE, Integer.MIN_VALUE};
+	private int Dx[];
+	private int Dy[];
 	private int size;
 
 //	private Grid(long seed) {
@@ -145,7 +145,10 @@ public class Grid implements Serializable {
 	}
 
 	private ArrayList<Coords> buildPath(Coords start, Random r){
-		if (this.getCell(start) != null) return null;
+		if (this.getCell(start) != null) {
+//			LOGGER.info("Start location already in maze.");
+			return null;
+		}
 		ArrayList<Coords> path = new ArrayList<>();
 
 		path.add(start);
@@ -159,14 +162,18 @@ public class Grid implements Serializable {
 			pos = pos.add(MOVE[d]);
 
 			byte check = 0;
-			for (Coords p : path) if (pos.equals(p)) check |= 1;
-//			if (check == 1) LOGGER.info("Definitely hit myself.");
-			for (Coords p : fixedCells) if (pos.equals(p)) check |= 1;
-			if (check == 1) {
-//				LOGGER.info("Path failed with length "+path.size());
-//				LOGGER.info("Pos at " + pos);
-				return null;
+			for (Coords p : path) if (pos.equals(p)) {
+//				LOGGER.info("Definitely hit myself.");
+				check |= 1;
 			}
+			if (check == 0) {
+				for (Coords p : fixedCells)
+					if (pos.equals(p)) {
+//						LOGGER.info("Definitely hit fixed cell.");
+						check |= 1;
+					}
+			}
+			if (check == 1) return null;
 			path.add(pos);
 		}
 		return path;
@@ -244,8 +251,8 @@ public class Grid implements Serializable {
 		double scalar = 2;
 		double rad = scalar*Math.sqrt(this.grid.size()/Math.PI);
 		int maxAttempts = 100;
-
-		for (int lz = 4; lz < 0.25*maxPaths; lz++) {
+		int lz = 4;
+		while (lz < 0.25*maxPaths) {
 			boolean pathFound = false;
 			ArrayList<Coords> path = new ArrayList<>();
 			while (!pathFound){
@@ -261,11 +268,14 @@ public class Grid implements Serializable {
 					path = this.buildPath(start,r);
 
 					if (path != null){
-						LOGGER.info("Path found.");
+						LOGGER.info("Round 1:  Path found. Attempt = " + attempts + " PATH # = " + lz);
 						pathFound = true;
 						break;
 					}
-					else attempts++;
+					else {
+//						LOGGER.info("PATH NOT FOUND! Attempt = " + attempts + " PATH # = " + lz);
+						attempts++;
+					}
 				}
 				if (pathFound) break;
 
@@ -273,12 +283,13 @@ public class Grid implements Serializable {
 				LOGGER.info(""+lz+" "+rad);
 			}
 			this.addPath(path);
-			LOGGER.info("Path " + lz + " added.");
+			lz++;
+//			LOGGER.info("Path " + lz + " added.");
 		}
-		std = 50;
-		scalar = 1;
 		rad = 0;
-		for (int lz = 0; lz < 0.75*maxPaths; lz++) {
+		int maxDist = Math.max(Math.abs(this.center.getY() - this.Dy[0]) ,Math.abs(this.center.getY() - this.Dy[1]));
+		std = 2*maxDist;
+		while (lz < maxPaths) {
 			boolean pathFound = false;
 			ArrayList<Coords> path = new ArrayList<>();
 			while (!pathFound){
@@ -294,19 +305,23 @@ public class Grid implements Serializable {
 					path = this.buildPath(start,r);
 
 					if (path != null){
-						LOGGER.info("Path found.");
+						LOGGER.info("Round 2: Path found. Attempt = " + attempts + " PATH # = " + lz);
 						pathFound = true;
 						break;
 					}
-					else attempts++;
+					else {
+//						LOGGER.info("PATH NOT FOUND! Attempt = " + attempts + " PATH # = " + (int)(lz+0.25*maxPaths));
+						attempts++;
+					}
 				}
 				if (pathFound) break;
 
-				rad += 2*std;
+//				rad += 2*std;
 //				LOGGER.info(""+lz+0.25*max+" "+rad);
 			}
 			this.addPath(path);
-			LOGGER.info("Path " + (int)(lz+0.25*maxPaths) + " added.");
+			lz++;
+//			LOGGER.info("Path " + (int)(lz+0.25*maxPaths) + " added.");
 		}
 
 //		-8029957180441823171
