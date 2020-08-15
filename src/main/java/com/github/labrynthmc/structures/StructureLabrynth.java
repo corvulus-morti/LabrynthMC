@@ -85,7 +85,7 @@ public class StructureLabrynth extends Structure<NoFeatureConfig> {
 
 			//Finds the y value of the terrain at location.
 			//int surfaceY = generator.func_222531_c(x, z, Heightmap.Type.WORLD_SURFACE_WG);
-			int surfaceY = 5;
+			int surfaceY = Labrynth.MAZE_Y_POS;
 			BlockPos blockpos2 = new BlockPos(x, surfaceY, z);
 
 			Coords center = Labrynth.labrynth.getCenter();

@@ -1,10 +1,13 @@
 package com.github.labrynthmc.util;
 
 import com.github.labrynthmc.Labrynth;
+import com.github.labrynthmc.mazegen.Coords;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -90,5 +93,16 @@ public class Utils {
 		String dir = Minecraft.getInstance().gameDir.getAbsolutePath();
 		String save = Minecraft.getInstance().getIntegratedServer().getFolderName();
 		return dir + "/saves/" + save + "/";
+	}
+
+	private static Coords cacheKey;
+	private static BlockPos cacheValue;
+	public static BlockPos coordToBlockPos(Coords coords) {
+		if (Objects.equals(coords, cacheKey)) {
+			return cacheValue;
+		}
+		cacheKey = coords;
+		cacheValue = new BlockPos(coords.getX() * 16 + 8, Labrynth.MAZE_Y_POS + 10, coords.getY() * 16 + 8);
+		return cacheValue;
 	}
 }
