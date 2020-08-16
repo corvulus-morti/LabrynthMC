@@ -268,7 +268,6 @@ public class Grid implements Serializable {
 					path = this.buildPath(start,r);
 
 					if (path != null){
-						LOGGER.info("Round 1:  Path found. Attempt = " + attempts + " PATH # = " + lz);
 						pathFound = true;
 						break;
 					}
@@ -305,7 +304,6 @@ public class Grid implements Serializable {
 					path = this.buildPath(start,r);
 
 					if (path != null){
-						LOGGER.info("Round 2: Path found. Attempt = " + attempts + " PATH # = " + lz);
 						pathFound = true;
 						break;
 					}
@@ -366,6 +364,8 @@ public class Grid implements Serializable {
 		} else {
 			entrance = center;
 		}
+
+		LOGGER.info("Placing entrance at " + (entrance.getX() * 16) + ", " + (entrance.getY()) * 16);
 
 //		List<Integer> sides = Arrays.asList(0,1,2,3);
 //		Collections.shuffle(sides, r); // Add new sides in a random order

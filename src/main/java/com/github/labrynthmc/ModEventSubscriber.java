@@ -1,6 +1,8 @@
 package com.github.labrynthmc;
 
 
+import com.github.labrynthmc.items.MazeCenterCompassItem;
+import com.github.labrynthmc.items.MazeEntranceCompassItem;
 import com.github.labrynthmc.mazegen.Coords;
 import com.github.labrynthmc.settings.MazeSizeMenuOption;
 import com.github.labrynthmc.structures.LightBlockPos;
@@ -12,6 +14,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.feature.Feature;
@@ -154,6 +158,15 @@ public class ModEventSubscriber {
 				blocks.remove(i--);
 			}
 		}
+	}
+
+	@SubscribeEvent
+	public static void onRegisterItems(RegistryEvent.Register<Item> event) {
+		final Item mazeCenterCompassItem = new MazeCenterCompassItem(new Item.Properties());
+		final Item mazeEntranceCompassItem = new MazeEntranceCompassItem(new Item.Properties());
+		mazeCenterCompassItem.setRegistryName(new ResourceLocation(Labrynth.MODID, "maze_center_compass"));
+		mazeEntranceCompassItem.setRegistryName(new ResourceLocation(Labrynth.MODID, "maze_entrance_compass"));
+		event.getRegistry().registerAll(mazeCenterCompassItem, mazeEntranceCompassItem);
 	}
 
 	private boolean isNether() {

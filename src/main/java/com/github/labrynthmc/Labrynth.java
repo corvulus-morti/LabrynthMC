@@ -32,6 +32,7 @@ public final class Labrynth {
 
 	public static final String MODID = "labrynthmc";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
+	public static final int MAZE_Y_POS = 20;
 	public static MazeDrawUpdateHandler MAZE_DRAW_UPDATE_HANDLER = null;
 	/** Set this to true when you want debugging logs */
 	public static final boolean DEBUG = true;

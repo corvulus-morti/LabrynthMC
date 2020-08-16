@@ -34,6 +34,9 @@ public class Coords implements Serializable {
 	}
 
 	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
 		Coords a = (Coords) o;
 		return this.x == a.getX() && this.y == a.getY();
 	}
