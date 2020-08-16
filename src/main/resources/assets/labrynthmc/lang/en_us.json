@@ -1,4 +1,6 @@
 {
   "item.labrynthmc.brandons_test_item": "Brandon's Test Item",
+  "item.labrynthmc.maze_center_compass": "Labrynth Center Locator",
+  "item.labrynthmc.maze_entrance_compass": "Labrynth Entrance Locator",
   "itemGroup.labrynthmcTab": "Labrynth"
 }
