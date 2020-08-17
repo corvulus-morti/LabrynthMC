@@ -4,10 +4,16 @@ import com.github.labrynthmc.Labrynth;
 import com.github.labrynthmc.mazegen.Coords;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
+import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLConfig;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -89,20 +95,25 @@ public class Utils {
 		}
 	}
 
+	private static String saveDir = ".";
 	public static String getCurrentSaveDirectory() {
-		String dir = Minecraft.getInstance().gameDir.getAbsolutePath();
-		String save = Minecraft.getInstance().getIntegratedServer().getFolderName();
-		return dir + "/saves/" + save + "/";
+		return saveDir;
+	}
+	public static void setCurrentSaveDirectory(String dir) {
+		File f = new File(dir);
+		f.mkdir();
+		saveDir = dir;
 	}
 
-	private static Coords cacheKey;
-	private static BlockPos cacheValue;
 	public static BlockPos coordToBlockPos(Coords coords) {
-		if (Objects.equals(coords, cacheKey)) {
-			return cacheValue;
-		}
-		cacheKey = coords;
-		cacheValue = new BlockPos(coords.getX() * 16 + 8, Labrynth.MAZE_Y_POS + 10, coords.getY() * 16 + 8);
-		return cacheValue;
+		return new BlockPos(coords.getX() * 16 + 8, Labrynth.MAZE_Y_POS + 10, coords.getY() * 16 + 8);
+	}
+
+	public static boolean isNether(EntityEvent e) {
+		return isNether(e.getEntity().getEntityWorld());
+	}
+
+	public static boolean isNether(IWorld world) {
+		return world.getDimension().getType().equals(DimensionType.THE_NETHER);
 	}
 }

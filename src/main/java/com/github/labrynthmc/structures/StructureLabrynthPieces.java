@@ -19,6 +19,8 @@ import net.minecraft.world.gen.feature.template.Template;
 import net.minecraft.world.gen.feature.template.TemplateManager;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Random;
 
@@ -59,10 +61,26 @@ public class StructureLabrynthPieces {
 		public void setupTemplate(TemplateManager templateManager) {
 			Template template = templateManager.getTemplateDefaulted(this.templateResource);
 			try {
-				Field ListOfListOfBlocks = Template.class.getDeclaredField("blocks");
-				ListOfListOfBlocks.setAccessible(true);
+				Field[] fields = Template.class.getDeclaredFields();
+				Field listOfListOfBlocks = null;
+				for (Field field : fields) {
+					if (field.getGenericType() instanceof ParameterizedType) {
+						ParameterizedType pt = (ParameterizedType) field.getGenericType();
+						Type[] ta = pt.getActualTypeArguments();
+						if (pt.getRawType().equals(List.class) && ta.length == 1 && ta[0] instanceof ParameterizedType) {
+							ParameterizedType pt2 = ((ParameterizedType) ta[0]);
+							if (pt2.getRawType().equals(List.class)) {
+								Type[] ta2 = pt2.getActualTypeArguments();
+								if (ta2.length == 1 && ta2[0].equals(Template.BlockInfo.class)) {
+									listOfListOfBlocks = field;
+								}
+							}
+						}
+					}
+				}
+				listOfListOfBlocks.setAccessible(true);//
 				List<List<Template.BlockInfo>> listListBlocks =
-						(List<List<Template.BlockInfo>>) ListOfListOfBlocks.get(template);
+						(List<List<Template.BlockInfo>>) listOfListOfBlocks.get(template);
 				for (List<Template.BlockInfo> blockInfos : listListBlocks) {
 					for (Template.BlockInfo blockInfo : blockInfos) {
 						if (blockInfo.state.getBlock() instanceof AirBlock) {
@@ -74,7 +92,7 @@ public class StructureLabrynthPieces {
 //						LOGGER.info("we have a block at " + myBlockPos.toString());
 					}
 				}
-			} catch (NoSuchFieldException | IllegalAccessException e) {
+			} catch (IllegalAccessException e) {
 				LOGGER.error("Unable to make block unbreakable", e);
 			}
 			PlacementSettings placementSettings = (new PlacementSettings()).setRotation(this.rotation).setMirror(Mirror.NONE);
