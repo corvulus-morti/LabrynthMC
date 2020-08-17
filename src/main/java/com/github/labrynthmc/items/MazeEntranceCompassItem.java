@@ -79,7 +79,7 @@ public class MazeEntranceCompassItem extends Item {
 
 			@OnlyIn(Dist.CLIENT)
 			private double getAngleToEntrance(IWorld p_185092_1_, Entity p_185092_2_) {
-				BlockPos blockpos = Utils.coordToBlockPos(Labrynth.labrynth.getEntrance());
+				BlockPos blockpos = Utils.coordToBlockPos(Labrynth.getEntrance());
 				return Math.atan2((double)blockpos.getZ() - p_185092_2_.getPosZ(), (double)blockpos.getX() - p_185092_2_.getPosX());
 			}
 		});

@@ -79,7 +79,7 @@ public class MazeCenterCompassItem extends Item {
 
 			@OnlyIn(Dist.CLIENT)
 			private double getAngleToCenter(IWorld p_185092_1_, Entity p_185092_2_) {
-				BlockPos blockpos = Utils.coordToBlockPos(Labrynth.labrynth.getCenter());
+				BlockPos blockpos = Utils.coordToBlockPos(Labrynth.getCenter());
 				return Math.atan2((double)blockpos.getZ() - p_185092_2_.getPosZ(), (double)blockpos.getX() - p_185092_2_.getPosX());
 			}
 		});
