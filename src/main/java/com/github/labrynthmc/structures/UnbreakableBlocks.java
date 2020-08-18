@@ -1,21 +1,19 @@
 package com.github.labrynthmc.structures;
 
 import com.github.labrynthmc.util.Utils;
+import net.minecraft.util.math.ChunkPos;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class UnbreakableBlocks {
 
-	private static final Object token = new Object();
 	private static final Object lock = new Object();
 
 	private static String currentSaveDir;
-	private static Set<LightBlockPos> set;
+	private static UnbreakableBlockSet set;
 
-	public static Set<LightBlockPos> getUnbreakableBlocks () {
+	public static UnbreakableBlockSet getUnbreakableBlocks () {
 		setCurrentUnbreakableSet();
 		return set;
 	}
@@ -37,17 +35,25 @@ public class UnbreakableBlocks {
 		}
 	}
 
-	private static class UnbreakableBlockSet implements Set<LightBlockPos> {
-		Set<Long> data = new HashSet<>();
+	public static class UnbreakableBlockSet implements Set<LightBlockPos> {
+		Map<ChunkPos, Set<Long>> data = new HashMap<>();
 
 		@Override
 		public int size() {
-			return data.size();
+			int total = 0;
+			synchronized (data) {
+				for (Set<Long> set : data.values()) {
+					total += set.size();
+				}
+			}
+			return total;
 		}
 
 		@Override
 		public boolean isEmpty() {
-			return data.isEmpty();
+			synchronized (data) {
+				return data.isEmpty();
+			}
 		}
 
 		@Override
@@ -55,45 +61,96 @@ public class UnbreakableBlocks {
 			if (!(o instanceof LightBlockPos)) {
 				return false;
 			}
-			return data.contains(((LightBlockPos) o).data);
+			LightBlockPos pos = (LightBlockPos) o;
+			ChunkPos chunkPos = getChunkPos(pos);
+			synchronized (data) {
+				if (!data.containsKey(chunkPos)) {
+					return false;
+				}
+				return data.get(chunkPos).contains(pos.data);
+			}
 		}
 
 		@Override
 		public Iterator<LightBlockPos> iterator() {
 			return new Iterator<LightBlockPos>() {
 
-				Iterator<Long> i = data.iterator();
+				Iterator<Set<Long>> i = data.values().iterator();
+				Iterator<Long> i2;
 
 				@Override
 				public boolean hasNext() {
-					return i.hasNext();
+					if (i2 == null) {
+						if (i.hasNext()) {
+							i2 = i.next().iterator();
+						} else {
+							return false;
+						}
+					}
+					if (!i2.hasNext()) {
+						if (i.hasNext()) {
+							i2 = i.next().iterator();
+						}
+					}
+					return i2.hasNext();
 				}
 
 				@Override
 				public LightBlockPos next() {
-					return new LightBlockPos(i.next());
+					if (i2 == null) {
+						if (i.hasNext()) {
+							i2 = i.next().iterator();
+						} else {
+							throw new NoSuchElementException();
+						}
+					}
+					if (!i2.hasNext()) {
+						if (i.hasNext()) {
+							i2 = i.next().iterator();
+						}
+					}
+					return new LightBlockPos(i2.next());
 				}
 			};
 		}
 
 		@Override
 		public Object[] toArray() {
-			return data.stream().map(v -> new LightBlockPos(v)).toArray();
+			Object[] ret;
+			synchronized (data) {
+				ret = new Object[size()];
+				int i = 0;
+				for (Set<Long> value : data.values()) {
+					for (Long l : value) {
+						ret[i++] = new LightBlockPos(l);
+					}
+				}
+			}
+			return ret;
 		}
 
 		@Override
 		public <T> T[] toArray(T[] a) {
 			LightBlockPos[] r = (LightBlockPos[]) a;
-			int i = 0;
-			for (long d : data) {
-				r[i] = new LightBlockPos(d);
+			synchronized (data) {
+				int i = 0;
+				for (Set<Long> value : data.values()) {
+					for (Long l : value) {
+						r[i++] = new LightBlockPos(l);
+					}
+				}
 			}
 			return a;
 		}
 
 		@Override
 		public boolean add(LightBlockPos lightBlockPos) {
-			return data.add(lightBlockPos.data);
+			ChunkPos chunkPos = getChunkPos(lightBlockPos);
+			synchronized (data) {
+				Set<Long> set = data.getOrDefault(chunkPos, new HashSet<>());
+				data.put(chunkPos, set);
+				return set.add(lightBlockPos.data);
+			}
 		}
 
 		@Override
@@ -101,14 +158,27 @@ public class UnbreakableBlocks {
 			if (!(o instanceof LightBlockPos)) {
 				return false;
 			}
-			return data.remove(((LightBlockPos) o).data);
+			ChunkPos chunkPos = getChunkPos(((LightBlockPos) o));
+			synchronized (data) {
+				Set<Long> set = data.get(chunkPos);
+				if (set == null) {
+					return false;
+				}
+				boolean ret = set.remove(((LightBlockPos) o).data);
+				if (set.isEmpty()) {
+					data.remove(chunkPos);
+				}
+				return ret;
+			}
 		}
 
 		@Override
 		public boolean containsAll(Collection<?> c) {
-			for (Object o : c) {
-				if (!contains(o)) {
-					return false;
+			synchronized (data) {
+				for (Object o : c) {
+					if (!contains(o)) {
+						return false;
+					}
 				}
 			}
 			return true;
@@ -117,8 +187,10 @@ public class UnbreakableBlocks {
 		@Override
 		public boolean addAll(Collection<? extends LightBlockPos> c) {
 			boolean changed = false;
-			for (LightBlockPos lightBlockPos : c) {
-				changed |= data.add(lightBlockPos.data);
+			synchronized (data) {
+				for (LightBlockPos lightBlockPos : c) {
+					changed |= add(lightBlockPos);
+				}
 			}
 			return changed;
 		}
@@ -126,9 +198,11 @@ public class UnbreakableBlocks {
 		@Override
 		public boolean retainAll(Collection<?> c) {
 			boolean changed = false;
-			for (long d : data) {
-				if (c.contains(new LightBlockPos(d))) {
-					changed |= data.remove(d);
+			synchronized (data) {
+				for (LightBlockPos pos : this) {
+					if (!c.contains(pos)) {
+						changed |= remove(pos);
+					}
 				}
 			}
 			return changed;
@@ -137,9 +211,11 @@ public class UnbreakableBlocks {
 		@Override
 		public boolean removeAll(Collection<?> c) {
 			boolean changed = false;
-			for (Object o : c) {
-				if (o instanceof LightBlockPos) {
-					changed |= data.remove(((LightBlockPos) o).data);
+			synchronized (data) {
+				for (Object o : c) {
+					if (o instanceof LightBlockPos) {
+						changed |= remove(o);
+					}
 				}
 			}
 			return changed;
@@ -147,7 +223,25 @@ public class UnbreakableBlocks {
 
 		@Override
 		public void clear() {
-			data.clear();
+			synchronized (data) {
+				data.clear();
+			}
+		}
+
+		private ChunkPos getChunkPos(LightBlockPos pos) {
+			return new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
+		}
+
+		public Set<LightBlockPos> getUnbreakableBlockSetInChunk(ChunkPos pos) {
+			Set<Long> set = data.get(pos);
+			if (set == null) {
+				return Collections.emptySet();
+			}
+			return set.stream().map(v -> new LightBlockPos(v)).collect(Collectors.toSet());
+		}
+
+		public Set<LightBlockPos> getUnbreakableBlockSetInChunk(int chunkPosX, int chunkPosZ) {
+			return getUnbreakableBlockSetInChunk(new ChunkPos(chunkPosX, chunkPosZ));
 		}
 	}
 }

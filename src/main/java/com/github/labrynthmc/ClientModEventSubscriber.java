@@ -3,16 +3,20 @@ package com.github.labrynthmc;
 import com.github.labrynthmc.settings.MazeSizeMenuOption;
 import com.github.labrynthmc.structures.LightBlockPos;
 import com.github.labrynthmc.structures.UnbreakableBlocks;
+import com.github.labrynthmc.util.Utils;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import sun.rmi.runtime.Log;
 
 import java.util.List;
 
@@ -105,6 +109,29 @@ public class ClientModEventSubscriber {
 				}
 			}
 		}
+	}
 
+	@SubscribeEvent
+	public void onChunkLoad(ChunkEvent.Load e) {
+		try {
+			if (!Utils.isNether(e.getWorld())) {
+				return;
+			}
+		} catch (NullPointerException npe) {
+			return;
+		}
+		ChunkPos pos = e.getChunk().getPos();
+		clientToServerHandler.apply(String.format("getUnbreakableBlocksChunk %d %d", pos.x, pos.z),
+				(s) -> {
+					String[] split = s.split(" ");
+					for (int i = 0; i < split.length - 2;) {
+						int x = Integer.parseInt(split[i++]);
+						int y = Integer.parseInt(split[i++]);
+						int z = Integer.parseInt(split[i++]);
+
+						UnbreakableBlocks.addUnbreakableBlock(new LightBlockPos(x, y, z));
+					}
+				}
+		);
 	}
 }
