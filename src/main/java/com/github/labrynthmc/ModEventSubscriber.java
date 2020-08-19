@@ -10,6 +10,7 @@ import com.github.labrynthmc.util.Utils;
 import com.github.labrynthmc.world.FeatureInit;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
@@ -85,8 +86,8 @@ public class ModEventSubscriber {
 
 	@SubscribeEvent
 	public static void onRegisterItems(RegistryEvent.Register<Item> event) {
-		final Item mazeCenterCompassItem = new MazeCenterCompassItem(new Item.Properties());
-		final Item mazeEntranceCompassItem = new MazeEntranceCompassItem(new Item.Properties());
+		final Item mazeCenterCompassItem = new MazeCenterCompassItem(new Item.Properties().group(ItemGroup.TOOLS));
+		final Item mazeEntranceCompassItem = new MazeEntranceCompassItem(new Item.Properties().group(ItemGroup.TOOLS));
 		mazeCenterCompassItem.setRegistryName(new ResourceLocation(Labrynth.MODID, "maze_center_compass"));
 		mazeEntranceCompassItem.setRegistryName(new ResourceLocation(Labrynth.MODID, "maze_entrance_compass"));
 		event.getRegistry().registerAll(mazeCenterCompassItem, mazeEntranceCompassItem);
